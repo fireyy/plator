@@ -1,12 +1,12 @@
 {
-  "name": "plator.js",
+  "name": "plator",
   "description": "A simple video player.",
   "main": "dist/plator.js",
   "module": "dist/plator.module.js",
   "jsnext:main": "dist/plator.module.js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "license": "MIT",
-  "repository": "fireyy/plator.js",
+  "repository": "fireyy/plator",
   "author": {
     "name": "fireyy",
     "email": "fireyy@gmail.com"

@@ -79,7 +79,7 @@ const plator = (options = {}) => {
       clearTimeout(player.control_timeout)
     }
 
-    player.control_timeout = setTimeout(function() {
+    player.control_timeout = setTimeout(() => {
       player.classList.add('hide-control')
     }, 3000)
   }
