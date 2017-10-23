@@ -89,9 +89,10 @@ const plator = (options = {}) => {
 
   function buildControls () {
     return `
-      <button class="${skin}__button--big toggle" title="Toggle Play">${iconPlay}</button>
+      <div class="${skin}__poster"></div>
+      <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${iconPlay}</button>
       <div class="${skin}__controls">
-        <button class="${skin}__button toggle" title="Toggle Video">${iconPlay}</button>
+        <button class="${skin}__button ${skin}__button--toggle" title="Toggle Video">${iconPlay}</button>
         <span class="${skin}__time--current">00:00</span>
         <div class="${skin}__progress">
           <input class="${skin}__progress--track" type="range" min="0" max="100" step="0.1" value="0">
@@ -106,6 +107,7 @@ const plator = (options = {}) => {
 
   function handleProgress (uiMap) {
     let {video, player} = uiMap
+
     player.classList.remove('is-waiting')
     uiMap.played.value = uiMap.track.value = video.currentTime
       ? video.currentTime / video.duration * 100
@@ -201,8 +203,9 @@ const plator = (options = {}) => {
       // hide control timeout
       player.control_timeout = null
 
-      let toggle = player.querySelectorAll('.toggle')
+      let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
       let uiMap = {
+        poster: 'poster',
         track: 'progress--track',
         buffer: 'progress--buffer',
         played: 'progress--played',
@@ -217,6 +220,9 @@ const plator = (options = {}) => {
       uiMap.player = player
       uiMap.toggle = toggle
       uiMap.video = video
+
+      // poster
+      uiMap.poster.style.backgroundImage = `url(${video.getAttribute('poster')})`
 
       // events
 
