@@ -1,17 +1,22 @@
+import './css/style.sss'
+
 const plator = (options = {}) => {
 
-  let isUpdate
+  const skin = 'plator__player'
+
+  let isUpdate,
+      nodes
 
   // icon
 
-  const iconPlay = '<i class="plator-play"></i>'
-  const iconPause = '<i class="plator-pause"></i>'
-  const iconExpand = '<i class="plator-expand"></i>'
-  const iconCompress = '<i class="plator-compress"></i>'
+  const iconPlay = `<i class="${skin}__icon--play"></i>`
+  const iconPause = `<i class="${skin}__icon--pause"></i>`
+  const iconExpand = `<i class="${skin}__icon--expand"></i>`
+  const iconCompress = `<i class="${skin}__icon--compress"></i>`
 
   // options
 
-  const packed = options.packed.indexOf('data-') === 0 ? options.packed : `data-${options.packed}`
+  const packed = 'data-packed'
 
   const selectors = {
     all: () => toArray(document.querySelectorAll('video')),
@@ -26,6 +31,25 @@ const plator = (options = {}) => {
 
   // helpers
 
+  function formatTime (time, total) {
+    if (isNaN(time)) {
+      time = 0
+    }
+
+    let secs = parseInt(time % 60)
+    let mins = parseInt((time / 60) % 60)
+    let hours = parseInt((time / 60 / 60) % 60)
+
+    // Do we need to display hours?
+    var displayHours = parseInt((total / 60 / 60) % 60) > 0
+
+    // Ensure it's two digits. For example, 03 rather than 3.
+    secs = ('0' + secs).slice(-2)
+    mins = ('0' + mins).slice(-2)
+
+    return (displayHours ? hours + ":" : "") + mins + ":" + secs
+  }
+
   function updateButton (video, toggle) {
     var icon = video.paused ? iconPlay : iconPause
     toggle.forEach(button => button.innerHTML = icon)
@@ -38,26 +62,59 @@ const plator = (options = {}) => {
   }
 
   function setNodes () {
-    players = selectors[persist ? 'new' : 'all']()
+    nodes = selectors[isUpdate ? 'new' : 'all']()
   }
 
   function buildControls () {
-    let skin = 'plator'
 
     return `
       <button class="${skin}__button--big toggle" title="Toggle Play">${iconPlay}</button>
       <div class="${skin}__controls">
         <button class="${skin}__button toggle" title="Toggle Video">${iconPlay}</button>
         <span class="${skin}__time--current">00:00</span>
+        <div class="${skin}__progress">
+          <input class="${skin}__progress--track" type="range" min="0" max="100" step="0.1" value="0">
+          <progress max="100" value="0" class="${skin}__progress--played"></progress>
+          <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
+        </div>
         <span class="${skin}__time--total">00:00</span>
         <button class="${skin}__button fullscreen" title="Full Screen">${iconExpand}</button>
       </div>
     `
   }
 
-  function handleProgress (video, progressBar) {
-    var percent = (video.currentTime / video.duration) * 100
-    progressBar.style.flexBasis = `${percent}%`
+  function handleProgress (video, uiMap) {
+    uiMap.played.value = uiMap.track.value = video.currentTime
+    ? video.currentTime / video.duration * 100
+    : 0
+    progressTime(video, uiMap)
+  }
+
+  function handleBuffer (video, uiMap) {
+    // try
+    try {
+      let buffer = video.buffered.end(0)
+      uiMap.buffer.value = buffer / video.duration * 100
+    } catch (e) {}
+  }
+
+  function progressTime (video, uiMap) {
+    uiMap.current.textContent = formatTime(
+      video.currentTime,
+      video.duration
+    )
+  }
+
+  function durationChange (video, uiMap) {
+    uiMap.total.textContent = formatTime(video.duration, video.duration)
+    progressTime(video, uiMap)
+  }
+
+  function inputProcess (e, video) {
+    let time = e.target.value / 100 * video.duration
+
+    video.currentTime =
+      time < 0 ? 0 : time > video.duration ? video.duration : time
   }
 
   function wrap () {
@@ -72,8 +129,16 @@ const plator = (options = {}) => {
       player.insertAdjacentHTML('beforeend', html)
 
       let toggle = player.querySelectorAll('.toggle')
-      let progress = player.querySelector('.progress')
-      let progressBar = player.querySelector('.progress__filled')
+      let uiMap = {
+        track: 'progress--track',
+        buffer: 'progress--buffer',
+        played: 'progress--played',
+        current: 'time--current',
+        total: 'time--total'
+      }
+      Object.keys(uiMap).map(item => {
+        uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`);
+      });
 
       // events
 
@@ -88,17 +153,30 @@ const plator = (options = {}) => {
           updateButton(video, toggle)
         },
         timeupdate (e) {
-          handleProgress(video, progressBar)
+          handleProgress(video, uiMap)
+        },
+        progress (e) {
+          handleBuffer(video, uiMap)
+        },
+        waiting (e) {
+          updateButton(video, toggle)
         },
         ended (e) {
           //
         },
         durationchange (e) {
-          //
+          durationChange(video, uiMap)
         }
       }
 
+      // play/pause button action
+      toggle.forEach(button => button.addEventListener('click', () => togglePlay(video, player)));
+
+      // video event bind
       Object.keys(events).forEach(evt => video.addEventListener(evt, events[evt], false))
+
+      // process track input
+      uiMap.track.addEventListener("input", (e) => inputProcess(e, video))
 
       video.setAttribute(packed, '')
     })
@@ -107,13 +185,15 @@ const plator = (options = {}) => {
   // API
 
   function setup () {
-    persist = false
+    isUpdate = false
+    setNodes()
 
     return wrap()
   }
 
   function update () {
-    persist = true
+    isUpdate = true
+    setNodes()
 
     return wrap()
   }

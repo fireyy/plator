@@ -1,37 +1,30 @@
 {
-  "name":        "plator.js",
+  "name": "plator.js",
   "description": "A simple video player.",
-
-  "main":        "dist/plator.js",
-  "module":      "dist/plator.module.js",
+  "main": "dist/plator.js",
+  "module": "dist/plator.module.js",
   "jsnext:main": "dist/plator.module.js",
-
   "version": "1.0.0",
   "license": "MIT",
-
   "repository": "fireyy/plator.js",
-
   "author": {
-    "name":  "fireyy",
+    "name": "fireyy",
     "email": "fireyy@gmail.com"
   },
-
   "scripts": {
-    "build":      "rollup -c",
-    "dev":        "rollup -c -w -m inline",
-    "lint":       "eslint src",
-    "prebuild":   "rm -rf dist",
+    "build": "rollup -c",
+    "dev": "rollup -c -w -m inline",
+    "lint": "eslint src",
+    "prebuild": "rm -rf dist",
     "prepublish": "npm run test",
-    "pretest":    "npm run build",
-    "server":     "python -m SimpleHTTPServer 3000",
-    "test":       "npm run lint"
+    "pretest": "npm run build",
+    "server": "python -m SimpleHTTPServer 3000",
+    "test": "npm run lint"
   },
-
   "keywords": [
     "video",
     "player"
   ],
-
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "babel-preset-env": "^1.2.2",
@@ -39,9 +32,12 @@
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
+    "postcss-cssnext": "^3.0.2",
+    "postcss-inline-svg": "^3.0.0",
     "rollup": "^0.41.1",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-postcss": "^0.5.5",
     "rollup-watch": "^3.2.2"
   }
 }
