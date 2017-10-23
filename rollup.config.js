@@ -13,7 +13,7 @@ const config = {
         require('postcss-inline-svg')()
       ],
       extract: 'dist/plator.css',
-      extensions: ['.css', '.sss']
+      extensions: ['.css', '.pcss']
     }),
     resolve(),
     babel({

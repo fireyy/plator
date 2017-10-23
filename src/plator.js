@@ -1,11 +1,9 @@
-import './css/style.sss'
+import './css/style.pcss'
 
 const plator = (options = {}) => {
-
   const skin = 'plator__player'
 
-  let isUpdate,
-      nodes
+  let isUpdate, nodes
 
   // icon
 
@@ -20,7 +18,10 @@ const plator = (options = {}) => {
 
   const selectors = {
     all: () => toArray(document.querySelectorAll('video')),
-    new: () => toArray(document.querySelectorAll('video')).filter(node => !node.hasAttribute(`${packed}`))
+    new: () =>
+      toArray(document.querySelectorAll('video')).filter(
+        node => !node.hasAttribute(`${packed}`)
+      )
   }
 
   // array helpers
@@ -47,18 +48,20 @@ const plator = (options = {}) => {
     secs = ('0' + secs).slice(-2)
     mins = ('0' + mins).slice(-2)
 
-    return (displayHours ? hours + ":" : "") + mins + ":" + secs
+    return (displayHours ? hours + ':' : '') + mins + ':' + secs
   }
 
   function updateButton (video, toggle) {
     var icon = video.paused ? iconPlay : iconPause
-    toggle.forEach(button => button.innerHTML = icon)
- }
+    toggle.forEach(button => (button.innerHTML = icon))
+  }
 
   function togglePlay (video, player) {
     var method = video.paused ? 'play' : 'pause'
     video[method]()
-    video.paused ? player.classList.remove('is-playing') : player.classList.add('is-playing')
+    video.paused
+      ? player.classList.remove('is-playing')
+      : player.classList.add('is-playing')
   }
 
   function setNodes () {
@@ -66,7 +69,6 @@ const plator = (options = {}) => {
   }
 
   function buildControls () {
-
     return `
       <button class="${skin}__button--big toggle" title="Toggle Play">${iconPlay}</button>
       <div class="${skin}__controls">
@@ -78,15 +80,15 @@ const plator = (options = {}) => {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
-        <button class="${skin}__button fullscreen" title="Full Screen">${iconExpand}</button>
+        <button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>
       </div>
     `
   }
 
   function handleProgress (video, uiMap) {
     uiMap.played.value = uiMap.track.value = video.currentTime
-    ? video.currentTime / video.duration * 100
-    : 0
+      ? video.currentTime / video.duration * 100
+      : 0
     progressTime(video, uiMap)
   }
 
@@ -99,10 +101,7 @@ const plator = (options = {}) => {
   }
 
   function progressTime (video, uiMap) {
-    uiMap.current.textContent = formatTime(
-      video.currentTime,
-      video.duration
-    )
+    uiMap.current.textContent = formatTime(video.currentTime, video.duration)
   }
 
   function durationChange (video, uiMap) {
@@ -117,11 +116,60 @@ const plator = (options = {}) => {
       time < 0 ? 0 : time > video.duration ? video.duration : time
   }
 
+  function toggleFullScreen (uiMap) {
+    // let isFullscreen = false;
+    let player = uiMap.player
+    if (
+      !document.fullscreenElement && // alternative standard method
+      !document.mozFullScreenElement &&
+      !document.webkitFullscreenElement &&
+      !document.msFullscreenElement
+    ) {
+      player.classList.add(`${skin}__fullscreen`)
+
+      if (player.requestFullscreen) {
+        player.requestFullscreen()
+      } else if (player.mozRequestFullScreen) {
+        player.mozRequestFullScreen() // Firefox
+      } else if (player.webkitRequestFullscreen) {
+        player.webkitRequestFullscreen() // Chrome and Safari
+      } else if (player.msRequestFullscreen) {
+        player.msRequestFullscreen()
+      }
+      isFullscreen = true
+
+      uiMap.fullscreen.innerHTML = iconCompress
+    } else {
+      player.classList.remove(`${skin}__fullscreen`)
+
+      if (document.cancelFullScreen) {
+        document.cancelFullScreen()
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen()
+      } else if (document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen()
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen()
+      }
+      isFullscreen = false
+      uiMap.fullscreen.innerHTML = iconExpand
+    }
+  }
+
+  function onFullScreen (e, uiMap) {
+    var isFullscreenNow = document.webkitFullscreenElement !== null
+    if (!isFullscreenNow) {
+      uiMap.player.classList.remove(`${skin}__fullscreen`)
+      uiMap.fullscreen.innerHTML = iconExpand
+    } else {
+      uiMap.fullscreen.innerHTML = iconCompress
+    }
+  }
+
   function wrap () {
     nodes.forEach((video, index) => {
-
       let player = document.createElement('div')
-      player.classList.add('plator__player')
+      player.classList.add(`${skin}`)
       video.parentNode.insertBefore(player, video)
       player.appendChild(video)
 
@@ -134,11 +182,14 @@ const plator = (options = {}) => {
         buffer: 'progress--buffer',
         played: 'progress--played',
         current: 'time--current',
-        total: 'time--total'
+        total: 'time--total',
+        fullscreen: 'fullscreen'
       }
       Object.keys(uiMap).map(item => {
-        uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`);
-      });
+        uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`)
+      })
+
+      uiMap.player = player
 
       // events
 
@@ -170,13 +221,27 @@ const plator = (options = {}) => {
       }
 
       // play/pause button action
-      toggle.forEach(button => button.addEventListener('click', () => togglePlay(video, player)));
+      toggle.forEach(button =>
+        button.addEventListener('click', () => togglePlay(video, player))
+      )
 
       // video event bind
-      Object.keys(events).forEach(evt => video.addEventListener(evt, events[evt], false))
+      Object.keys(events).forEach(evt =>
+        video.addEventListener(evt, events[evt], false)
+      )
 
       // process track input
-      uiMap.track.addEventListener("input", (e) => inputProcess(e, video))
+      uiMap.track.addEventListener('input', e => inputProcess(e, video))
+
+      // fullscreen action
+      uiMap.fullscreen.addEventListener('click', e =>
+        toggleFullScreen(uiMap)
+      )
+      'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
+        .split(' ')
+        .forEach(evt =>
+          player.addEventListener(evt, e => onFullScreen(e, uiMap))
+        )
 
       video.setAttribute(packed, '')
     })
