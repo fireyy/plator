@@ -9,6 +9,7 @@ const plator = (options = {}) => {
 
   const iconPlay = `<i class="${skin}__icon--play"></i>`
   const iconPause = `<i class="${skin}__icon--pause"></i>`
+  const iconReplay = `<i class="${skin}__icon--replay"></i>`
   const iconExpand = `<i class="${skin}__icon--expand"></i>`
   const iconCompress = `<i class="${skin}__icon--compress"></i>`
 
@@ -211,7 +212,8 @@ const plator = (options = {}) => {
         played: 'progress--played',
         current: 'time--current',
         total: 'time--total',
-        fullscreen: 'fullscreen'
+        fullscreen: 'fullscreen',
+        buttonBig: 'button--big'
       }
       Object.keys(uiMap).map(item => {
         uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`)
@@ -246,7 +248,8 @@ const plator = (options = {}) => {
           player.classList.add('is-waiting')
         },
         ended (e) {
-          //
+          player.classList.remove('is-playing')
+          uiMap.buttonBig.innerHTML = iconReplay
         },
         durationchange (e) {
           durationChange(uiMap)

@@ -31,7 +31,7 @@
     transition: opacity .2s;
     opacity: 1;
     visibility: visible;
-    // z-index: -1;
+    z-index: 2;
   }
   &.plator__player__fullscreen {
     position: fixed;
@@ -58,6 +58,7 @@
   opacity: 1;
   visibility: visible;
   transition: all .2s;
+  z-index: 1;
 }
 
 .plator__player__title {
@@ -105,6 +106,13 @@
 .plator__player__icon--pause {
   background-image: svg-load('../img/pause.svg');
 }
+.plator__player__icon--replay {
+  background-image: svg-load('../img/replay.svg');
+  width: 72px !important;
+  height: 72px !important;
+  background-color: transparent !important;
+  background-size: 100% !important;
+}
 .plator__player__icon--expand {
   background-image: svg-load('../img/expand.svg');
 }
@@ -129,6 +137,7 @@
   font-size: 64px;
   transition: all .2s;
   touch-action: manipulation;
+  z-index: 6;
   & i {
     display: inline-block;
     width: 60px;
@@ -177,7 +186,16 @@
   }
 }
 
+.plator__player.hide-control {
+  & .plator__player__controls {
+    transform: translateY(52px);
+  }
+}
+
 .plator__player.is-waiting {
+  & .plator__player__controls {
+    transform: translateY(0);
+  }
   & .plator__player__progress {
     animation: plator-progress 1s linear infinite;
     background-size: 22px 22px;
@@ -199,12 +217,6 @@
     to {
         background-position: 22px 0;
     }
-}
-
-.plator__player.hide-control {
-  & .plator__player__controls {
-    transform: translateY(52px);
-  }
 }
 
 .plator__player__progress {
