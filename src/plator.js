@@ -51,17 +51,36 @@ const plator = (options = {}) => {
     return (displayHours ? hours + ':' : '') + mins + ':' + secs
   }
 
-  function updateButton (video, toggle) {
-    var icon = video.paused ? iconPlay : iconPause
-    toggle.forEach(button => (button.innerHTML = icon))
+  function updateButton (uiMap) {
+    clearControlTimeout(uiMap.player)
+    var icon = uiMap.video.paused ? iconPlay : iconPause
+    uiMap.toggle.forEach(button => (button.innerHTML = icon))
   }
 
-  function togglePlay (video, player) {
+  function togglePlay (uiMap) {
+    let {video, player} = uiMap
+
+    player.classList.remove('is-waiting')
     var method = video.paused ? 'play' : 'pause'
     video[method]()
     video.paused
       ? player.classList.remove('is-playing')
       : player.classList.add('is-playing')
+  }
+
+  function toggleControl (uiMap) {
+    uiMap.player.classList.toggle('hide-control')
+    clearControlTimeout(uiMap.player)
+  }
+
+  function clearControlTimeout (player) {
+    if (player.control_timeout) {
+      clearTimeout(player.control_timeout)
+    }
+
+    player.control_timeout = setTimeout(function() {
+      player.classList.add('hide-control')
+    }, 3000)
   }
 
   function setNodes () {
@@ -85,35 +104,38 @@ const plator = (options = {}) => {
     `
   }
 
-  function handleProgress (video, uiMap) {
+  function handleProgress (uiMap) {
+    let {video, player} = uiMap
+    player.classList.remove('is-waiting')
     uiMap.played.value = uiMap.track.value = video.currentTime
       ? video.currentTime / video.duration * 100
       : 0
-    progressTime(video, uiMap)
+    progressTime(uiMap)
   }
 
-  function handleBuffer (video, uiMap) {
+  function handleBuffer (uiMap) {
     // try
     try {
-      let buffer = video.buffered.end(0)
-      uiMap.buffer.value = buffer / video.duration * 100
+      let buffer = uiMap.video.buffered.end(0)
+      uiMap.buffer.value = buffer / uiMap.video.duration * 100
     } catch (e) {}
   }
 
-  function progressTime (video, uiMap) {
-    uiMap.current.textContent = formatTime(video.currentTime, video.duration)
+  function progressTime (uiMap) {
+    uiMap.current.textContent = formatTime(uiMap.video.currentTime, uiMap.video.duration)
   }
 
-  function durationChange (video, uiMap) {
-    uiMap.total.textContent = formatTime(video.duration, video.duration)
-    progressTime(video, uiMap)
+  function durationChange (uiMap) {
+    uiMap.total.textContent = formatTime(uiMap.video.duration, uiMap.video.duration)
+    progressTime(uiMap)
   }
 
-  function inputProcess (e, video) {
-    let time = e.target.value / 100 * video.duration
+  function inputProcess (e, uiMap) {
+    clearControlTimeout(uiMap.player)
+    let time = e.target.value / 100 * uiMap.video.duration
 
-    video.currentTime =
-      time < 0 ? 0 : time > video.duration ? video.duration : time
+    uiMap.video.currentTime =
+      time < 0 ? 0 : time > uiMap.video.duration ? uiMap.video.duration : time
   }
 
   function toggleFullScreen (uiMap) {
@@ -169,11 +191,15 @@ const plator = (options = {}) => {
     nodes.forEach((video, index) => {
       let player = document.createElement('div')
       player.classList.add(`${skin}`)
+      player.classList.add('hide-control')
       video.parentNode.insertBefore(player, video)
       player.appendChild(video)
 
       let html = buildControls()
       player.insertAdjacentHTML('beforeend', html)
+
+      // hide control timeout
+      player.control_timeout = null
 
       let toggle = player.querySelectorAll('.toggle')
       let uiMap = {
@@ -189,39 +215,41 @@ const plator = (options = {}) => {
       })
 
       uiMap.player = player
+      uiMap.toggle = toggle
+      uiMap.video = video
 
       // events
 
       const events = {
         click (e) {
-          togglePlay(video, player)
+          toggleControl(uiMap)
         },
         play (e) {
-          updateButton(video, toggle)
+          updateButton(uiMap)
         },
         pause (e) {
-          updateButton(video, toggle)
+          updateButton(uiMap)
         },
         timeupdate (e) {
-          handleProgress(video, uiMap)
+          handleProgress(uiMap)
         },
         progress (e) {
-          handleBuffer(video, uiMap)
+          handleBuffer(uiMap)
         },
         waiting (e) {
-          updateButton(video, toggle)
+          player.classList.add('is-waiting')
         },
         ended (e) {
           //
         },
         durationchange (e) {
-          durationChange(video, uiMap)
+          durationChange(uiMap)
         }
       }
 
       // play/pause button action
       toggle.forEach(button =>
-        button.addEventListener('click', () => togglePlay(video, player))
+        button.addEventListener('click', () => togglePlay(uiMap))
       )
 
       // video event bind
@@ -230,7 +258,7 @@ const plator = (options = {}) => {
       )
 
       // process track input
-      uiMap.track.addEventListener('input', e => inputProcess(e, video))
+      uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
 
       // fullscreen action
       uiMap.fullscreen.addEventListener('click', e =>
