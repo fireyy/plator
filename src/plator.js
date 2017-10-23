@@ -117,8 +117,8 @@ const plator = (options = {}) => {
   }
 
   function toggleFullScreen (uiMap) {
-    // let isFullscreen = false;
     let player = uiMap.player
+
     if (
       !document.fullscreenElement && // alternative standard method
       !document.mozFullScreenElement &&
@@ -136,7 +136,6 @@ const plator = (options = {}) => {
       } else if (player.msRequestFullscreen) {
         player.msRequestFullscreen()
       }
-      isFullscreen = true
 
       uiMap.fullscreen.innerHTML = iconCompress
     } else {
@@ -151,14 +150,14 @@ const plator = (options = {}) => {
       } else if (document.msExitFullscreen) {
         document.msExitFullscreen()
       }
-      isFullscreen = false
+
       uiMap.fullscreen.innerHTML = iconExpand
     }
   }
 
   function onFullScreen (e, uiMap) {
-    var isFullscreenNow = document.webkitFullscreenElement !== null
-    if (!isFullscreenNow) {
+    var isFullscreen = document.webkitFullscreenElement !== null
+    if (!isFullscreen) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = iconExpand
     } else {
