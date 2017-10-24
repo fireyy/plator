@@ -14,11 +14,10 @@
   "scripts": {
     "bump": "standard-version",
     "build": "rollup -c",
-    "dev": "rollup -c -w -m inline",
+    "dev": "cross-env NODE_ENV=development rollup -c -w -m inline",
     "lint": "eslint src",
     "minify": "uglifyjs $npm_package_main -cm -o $npm_package_main --source-map base=${npm_package_main}.map",
     "prebuild": "rm -rf dist",
-    "server": "python -m SimpleHTTPServer 3000",
     "test": "npm run lint",
     "release": "npm run build && npm run minify && npm run bump && git push --follow-tags origin master && npm publish"
   },
@@ -29,6 +28,7 @@
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "babel-preset-env": "^1.2.2",
+    "cross-env": "^5.1.0",
     "cssnano": "^3.10.0",
     "eslint": "^3.13.0",
     "eslint-config-standard": "^6.2.1",
@@ -40,6 +40,7 @@
     "rollup-plugin-buble": "^0.16.0",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-postcss": "^0.5.5",
+    "rollup-plugin-serve": "^0.4.2",
     "rollup-watch": "^3.2.2",
     "standard-version": "^4.2.0",
     "uglify-js": "^3.1.5"

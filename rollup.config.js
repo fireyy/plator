@@ -35,4 +35,15 @@ const config = {
   ]
 }
 
+if (process.env.NODE_ENV === 'development') {
+  config.plugins.push(
+    require('rollup-plugin-serve')({
+      contentBase: __dirname,
+      host: 'localhost',
+      port: 3000,
+      open: false
+    })
+  )
+}
+
 export default config
