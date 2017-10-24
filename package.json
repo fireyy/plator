@@ -4,7 +4,7 @@
   "main": "dist/plator.js",
   "module": "dist/plator.module.js",
   "jsnext:main": "dist/plator.module.js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "repository": "fireyy/plator",
   "author": {
@@ -16,7 +16,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w -m inline",
     "lint": "eslint src",
-    "minify": "uglifyjs $npm_package_main -cm -o $npm_package_main -p relative --in-source-map ${npm_package_main}.map --source-map ${npm_package_main}.map",
+    "minify": "uglifyjs $npm_package_main -cm -o $npm_package_main --source-map base=${npm_package_main}.map",
     "prebuild": "rm -rf dist",
     "server": "python -m SimpleHTTPServer 3000",
     "test": "npm run lint",
