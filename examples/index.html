@@ -11,9 +11,12 @@
 
 <body>
   <video poster="http://media.w3.org/2010/05/bunny/poster.png" src="http://media.w3.org/2010/05/bunny/movie.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true"></video>
+  <audio src="https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3"></audio>
   <script src="../dist/plator.js"></script>
   <script>
-    let plator = Plator()
+    let plator = Plator({
+      type: 'video, audio'
+    })
     plator.setup()
   </script>
 </body>

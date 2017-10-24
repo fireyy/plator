@@ -16,11 +16,12 @@ const plator = (options = {}) => {
   // options
 
   const packed = 'data-packed'
+  const type = options.type ? options.type : 'audio'
 
   const selectors = {
-    all: () => toArray(document.querySelectorAll('video')),
+    all: () => toArray(document.querySelectorAll(type)),
     new: () =>
-      toArray(document.querySelectorAll('video')).filter(
+      toArray(document.querySelectorAll(type)).filter(
         node => !node.hasAttribute(`${packed}`)
       )
   }
@@ -54,17 +55,17 @@ const plator = (options = {}) => {
 
   function updateButton (uiMap) {
     clearControlTimeout(uiMap.player)
-    var icon = uiMap.video.paused ? iconPlay : iconPause
+    var icon = uiMap.media.paused ? iconPlay : iconPause
     uiMap.toggle.forEach(button => (button.innerHTML = icon))
   }
 
   function togglePlay (uiMap) {
-    let {video, player} = uiMap
+    let { media, player } = uiMap
 
     player.classList.remove('is-waiting')
-    var method = video.paused ? 'play' : 'pause'
-    video[method]()
-    video.paused
+    var method = media.paused ? 'play' : 'pause'
+    media[method]()
+    media.paused
       ? player.classList.remove('is-playing')
       : player.classList.add('is-playing')
   }
@@ -88,12 +89,16 @@ const plator = (options = {}) => {
     nodes = selectors[isUpdate ? 'new' : 'all']()
   }
 
-  function buildControls () {
+  function buildControls (player) {
     return `
-      <div class="${skin}__poster"></div>
-      <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${iconPlay}</button>
+      ${player.media === 'video'
+        ? `
+          <div class="${skin}__poster"></div>
+          <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${iconPlay}</button>
+        `
+        : ''}
       <div class="${skin}__controls">
-        <button class="${skin}__button ${skin}__button--toggle" title="Toggle Video">${iconPlay}</button>
+        <button class="${skin}__button ${skin}__button--toggle" title="Toggle media">${iconPlay}</button>
         <span class="${skin}__time--current">00:00</span>
         <div class="${skin}__progress">
           <input class="${skin}__progress--track" type="range" min="0" max="100" step="0.1" value="0">
@@ -101,17 +106,17 @@ const plator = (options = {}) => {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
-        <button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>
+        ${player.media === 'video' ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>` : ''}
       </div>
     `
   }
 
   function handleProgress (uiMap) {
-    let {video, player} = uiMap
+    let { media, player } = uiMap
 
     player.classList.remove('is-waiting')
-    uiMap.played.value = uiMap.track.value = video.currentTime
-      ? video.currentTime / video.duration * 100
+    uiMap.played.value = uiMap.track.value = media.currentTime
+      ? media.currentTime / media.duration * 100
       : 0
     progressTime(uiMap)
   }
@@ -119,26 +124,32 @@ const plator = (options = {}) => {
   function handleBuffer (uiMap) {
     // try
     try {
-      let buffer = uiMap.video.buffered.end(0)
-      uiMap.buffer.value = buffer / uiMap.video.duration * 100
+      let buffer = uiMap.media.buffered.end(0)
+      uiMap.buffer.value = buffer / uiMap.media.duration * 100
     } catch (e) {}
   }
 
   function progressTime (uiMap) {
-    uiMap.current.textContent = formatTime(uiMap.video.currentTime, uiMap.video.duration)
+    uiMap.current.textContent = formatTime(
+      uiMap.media.currentTime,
+      uiMap.media.duration
+    )
   }
 
   function durationChange (uiMap) {
-    uiMap.total.textContent = formatTime(uiMap.video.duration, uiMap.video.duration)
+    uiMap.total.textContent = formatTime(
+      uiMap.media.duration,
+      uiMap.media.duration
+    )
     progressTime(uiMap)
   }
 
   function inputProcess (e, uiMap) {
     clearControlTimeout(uiMap.player)
-    let time = e.target.value / 100 * uiMap.video.duration
+    let time = e.target.value / 100 * uiMap.media.duration
 
-    uiMap.video.currentTime =
-      time < 0 ? 0 : time > uiMap.video.duration ? uiMap.video.duration : time
+    uiMap.media.currentTime =
+      time < 0 ? 0 : time > uiMap.media.duration ? uiMap.media.duration : time
   }
 
   function toggleFullScreen (uiMap) {
@@ -191,18 +202,19 @@ const plator = (options = {}) => {
   }
 
   function wrap () {
-    nodes.forEach((video, index) => {
+    nodes.forEach((media, index) => {
       let player = document.createElement('div')
       player.classList.add(`${skin}`)
-      player.classList.add('hide-control')
-      video.parentNode.insertBefore(player, video)
-      player.appendChild(video)
-
-      let html = buildControls()
-      player.insertAdjacentHTML('beforeend', html)
+      media.parentNode.insertBefore(player, media)
+      player.appendChild(media)
 
       // hide control timeout
       player.control_timeout = null
+      player.media = media.nodeName.toLocaleLowerCase()
+      player.classList.add(`${skin}--${player.media}`)
+
+      let html = buildControls(player)
+      player.insertAdjacentHTML('beforeend', html)
 
       let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
       let uiMap = {
@@ -221,10 +233,15 @@ const plator = (options = {}) => {
 
       uiMap.player = player
       uiMap.toggle = toggle
-      uiMap.video = video
+      uiMap.media = media
 
       // poster
-      uiMap.poster.style.backgroundImage = `url(${video.getAttribute('poster')})`
+      if (player.media === 'video') {
+        player.classList.add('hide-control')
+        uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
+          'poster'
+        )})`
+      }
 
       // events
 
@@ -261,25 +278,23 @@ const plator = (options = {}) => {
         button.addEventListener('click', () => togglePlay(uiMap))
       )
 
-      // video event bind
+      // media event bind
       Object.keys(events).forEach(evt =>
-        video.addEventListener(evt, events[evt], false)
+        media.addEventListener(evt, events[evt], false)
       )
 
       // process track input
       uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
 
       // fullscreen action
-      uiMap.fullscreen.addEventListener('click', e =>
-        toggleFullScreen(uiMap)
-      )
+      uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
       'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
         .split(' ')
         .forEach(evt =>
           player.addEventListener(evt, e => onFullScreen(e, uiMap))
         )
 
-      video.setAttribute(packed, '')
+      media.setAttribute(packed, '')
     })
   }
 
