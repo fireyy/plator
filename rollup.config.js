@@ -1,9 +1,6 @@
-import babel from 'rollup-plugin-babel'
+import buble from 'rollup-plugin-buble'
 import resolve from 'rollup-plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
-
-// TODO: use buble instead of babel
-// TODO: use uglify.js to minify code
 
 const info = require('./package.json')
 
@@ -24,19 +21,7 @@ const config = {
       extensions: ['.css', '.pcss']
     }),
     resolve(),
-    babel({
-      babelrc: false,
-      presets: [
-        [
-          'env', {
-            modules: false,
-            targets: {
-              browsers: ['last 2 versions']
-            }
-          }
-        ]
-      ]
-    })
+    buble()
   ],
   targets: [
     {
