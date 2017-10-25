@@ -287,12 +287,14 @@ const plator = (options = {}) => {
       uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
 
       // fullscreen action
-      uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
-      'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
-        .split(' ')
-        .forEach(evt =>
-          player.addEventListener(evt, e => onFullScreen(e, uiMap))
-        )
+      if (player.media === 'video') {
+        uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
+        'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
+          .split(' ')
+          .forEach(evt =>
+            player.addEventListener(evt, e => onFullScreen(e, uiMap))
+          )
+      }
 
       media.setAttribute(packed, '')
     })
