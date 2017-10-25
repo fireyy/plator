@@ -46,6 +46,13 @@
     border-radius: 0!important;
     display: flex;
   }
+  & svg {
+    display: inline-block;
+    color: #fff;
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+  }
 }
 
 .plator__player__poster {
@@ -91,33 +98,9 @@
   justify-content: center;
   display: flex;
   max-width: 50px;
-  & i {
-    align-self: center;
-    width: 22px;
-    height: 22px;
-    background-position: 50% 50%;
-    background-repeat: no-repeat;
-    background-size: 100%;
+  & svg {
+    font-size: 22px;
   }
-}
-.plator__player__icon--play {
-  background-image: svg-load('../img/play.svg');
-}
-.plator__player__icon--pause {
-  background-image: svg-load('../img/pause.svg');
-}
-.plator__player__icon--replay {
-  background-image: svg-load('../img/replay.svg');
-  width: 72px !important;
-  height: 72px !important;
-  background-color: transparent !important;
-  background-size: 100% !important;
-}
-.plator__player__icon--expand {
-  background-image: svg-load('../img/expand.svg');
-}
-.plator__player__icon--compress {
-  background-image: svg-load('../img/compress.svg');
 }
 .plator__player__button--big {
   background: none;
@@ -138,15 +121,8 @@
   transition: all .2s;
   touch-action: manipulation;
   z-index: 6;
-  & i {
-    display: inline-block;
-    width: 60px;
-    height: 60px;
-    border-radius: 60px;
-    background-color: rgba(0,0,0,.5);
-    background-position: 50% 50%;
-    background-repeat: no-repeat;
-    background-size: 60%;
+  & svg {
+    font-size: 70px;
   }
 }
 .plator__player__slider {

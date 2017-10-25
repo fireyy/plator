@@ -1,17 +1,14 @@
 import './css/style.pcss'
+import iconPlay from './img/play.svg'
+import iconPause from './img/pause.svg'
+import iconReplay from './img/replay.svg'
+import iconExpand from './img/expand.svg'
+import iconCompress from './img/compress.svg'
 
 const plator = (options = {}) => {
   const skin = 'plator__player'
 
   let isUpdate, nodes
-
-  // icon
-
-  const iconPlay = `<i class="${skin}__icon--play"></i>`
-  const iconPause = `<i class="${skin}__icon--pause"></i>`
-  const iconReplay = `<i class="${skin}__icon--replay"></i>`
-  const iconExpand = `<i class="${skin}__icon--expand"></i>`
-  const iconCompress = `<i class="${skin}__icon--compress"></i>`
 
   // options
 

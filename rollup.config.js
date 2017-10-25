@@ -1,6 +1,7 @@
 import buble from 'rollup-plugin-buble'
 import resolve from 'rollup-plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
+import string from 'rollup-plugin-string'
 
 const info = require('./package.json')
 
@@ -12,7 +13,6 @@ const config = {
     postcss({
       plugins: [
         require('postcss-cssnext')(),
-        require('postcss-inline-svg')(),
         require('cssnano')({
           autoprefixer: false
         })
@@ -20,6 +20,9 @@ const config = {
       extract: 'dist/plator.css',
       extensions: ['.css', '.pcss']
     }),
+    string({
+			include: '**/*.svg'
+		}),
     resolve(),
     buble()
   ],
