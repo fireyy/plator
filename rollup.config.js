@@ -21,8 +21,8 @@ const config = {
       extensions: ['.css', '.pcss']
     }),
     string({
-			include: '**/*.svg'
-		}),
+      include: '**/*.svg'
+    }),
     resolve(),
     buble()
   ],
@@ -31,7 +31,8 @@ const config = {
       dest: info.main,
       format: 'umd',
       moduleName: 'Plator'
-    }, {
+    },
+    {
       dest: info.module,
       format: 'es'
     }
