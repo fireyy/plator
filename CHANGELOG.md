@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/fireyy/plator/compare/v0.1.0...v0.2.0) (2017-10-25)
+
+
+### Bug Fixes
+
+* audio event ([111a3fd](https://github.com/fireyy/plator/commit/111a3fd))
+
+
+### Features
+
+* add audio support ([d2473b7](https://github.com/fireyy/plator/commit/d2473b7))
+* dev serve ([694d864](https://github.com/fireyy/plator/commit/694d864))
+* use buble ([0a27ad9](https://github.com/fireyy/plator/commit/0a27ad9))
+* use inline svg ([cfff306](https://github.com/fireyy/plator/commit/cfff306))
+
+
+
 <a name="0.1.0"></a>
 # 0.1.0 (2017-10-24)
 
