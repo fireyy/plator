@@ -290,7 +290,7 @@ const plator = (options = {}) => {
         'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
           .split(' ')
           .forEach(evt =>
-            player.addEventListener(evt, e => onFullScreen(e, uiMap))
+            `on${evt}` in document && document.addEventListener(evt, e => onFullScreen(e, uiMap))
           )
       }
 
