@@ -1,6 +1,6 @@
 {
   "name": "plator",
-  "description": "A simple video player.",
+  "description": "A simple HTML5 video/audio player.",
   "main": "dist/plator.js",
   "module": "dist/plator.module.js",
   "jsnext:main": "dist/plator.module.js",

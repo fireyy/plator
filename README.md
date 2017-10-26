@@ -1,5 +1,7 @@
 # Plator
 
+> A simple HTML5 video/audio player.
+
 ## Install
 
 This project uses [node](http://nodejs.org) and [npm](https://npmjs.com). Go check them out if you don't have them locally installed.
@@ -35,7 +37,9 @@ This exposes the `Plator()` function as a global.
 ```js
 import plator from 'plator';
 
-let plator = Plator()
+let plator = Plator({
+  type: 'video, audio'
+})
     plator.setup()
 ```
 
@@ -46,6 +50,12 @@ let plator = Plator()
 ## API
 
 Plator's API is organized as follows:
+
+### `Plator(options: Object)`
+
+Plator will account for the following properties in options:
+
+  * `type` The media type to pack, `video`/`audio` or `video, audio`, default to `audio`.
 
 ### `setup()`
 init function.
