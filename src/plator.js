@@ -235,6 +235,7 @@ const plator = (options = {}) => {
       // poster
       if (player.media === 'video') {
         player.classList.add('hide-control')
+        media.removeAttribute('controls')
         uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
           'poster'
         )})`
@@ -243,9 +244,6 @@ const plator = (options = {}) => {
       // events
 
       const events = {
-        click (e) {
-          toggleControl(uiMap)
-        },
         play (e) {
           updateButton(uiMap)
         },
@@ -283,8 +281,11 @@ const plator = (options = {}) => {
       // process track input
       uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
 
-      // fullscreen action
       if (player.media === 'video') {
+        // click toggle control
+        uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
+
+        // fullscreen action
         uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
         'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
           .split(' ')
