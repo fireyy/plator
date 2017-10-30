@@ -59,11 +59,3 @@ Plator will account for the following properties in options:
 
 ### `setup()`
 init function.
-
-### `update()`
-Used to pack _video elements without the `packed` attribute_.
-
-```es6
-// pack NEW video items
-plator.update()
-```

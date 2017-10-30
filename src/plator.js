@@ -8,19 +8,17 @@ import iconCompress from './img/compress.svg'
 const plator = (options = {}) => {
   const skin = 'plator__player'
 
-  let isUpdate, nodes
+  let nodes
 
   // options
 
   const packed = 'data-packed'
   const type = options.type ? options.type : 'audio'
 
-  const selectors = {
-    all: () => toArray(document.querySelectorAll(type)),
-    new: () =>
-      toArray(document.querySelectorAll(type)).filter(
-        node => !node.hasAttribute(`${packed}`)
-      )
+  function selectors () {
+    return toArray(document.querySelectorAll(type)).filter(
+      node => !node.hasAttribute(`${packed}`)
+    )
   }
 
   // array helpers
@@ -82,10 +80,6 @@ const plator = (options = {}) => {
     }, 3000)
   }
 
-  function setNodes () {
-    nodes = selectors[isUpdate ? 'new' : 'all']()
-  }
-
   function buildControls (player) {
     return `
       ${player.media === 'video'
@@ -103,7 +97,7 @@ const plator = (options = {}) => {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
-        ${player.sources ? `
+        ${player.sources && Object.keys(player.sources).length > 0 ? `
         <span class="${skin}__quality--list">
           <select>
           ${
@@ -253,7 +247,7 @@ const plator = (options = {}) => {
         total: 'time--total',
         fullscreen: 'fullscreen',
         buttonBig: 'button--big',
-        qualityList: 'quality--list'
+        qualityList: 'quality--list select'
       }
       Object.keys(uiMap).map(item => {
         uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`)
@@ -317,7 +311,7 @@ const plator = (options = {}) => {
         uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
 
         // click quality switcher
-        uiMap.qualityList.addEventListener('change', (e) => selectQuality(e, uiMap))
+        uiMap.qualityList && uiMap.qualityList.addEventListener('change', (e) => selectQuality(e, uiMap))
 
         // fullscreen action
         uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
@@ -335,22 +329,13 @@ const plator = (options = {}) => {
   // API
 
   function setup () {
-    isUpdate = false
-    setNodes()
-
-    return wrap()
-  }
-
-  function update () {
-    isUpdate = true
-    setNodes()
+    nodes = selectors()
 
     return wrap()
   }
 
   return {
-    setup,
-    update
+    setup
   }
 }
 
