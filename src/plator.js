@@ -103,6 +103,15 @@ const plator = (options = {}) => {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
+        ${player.sources ? `
+        <span class="${skin}__quality--list">
+          <select>
+          ${
+            Object.keys(player.sources).map(s => `<option value="${player.sources[s]}">${s}</option>`)
+          }
+          </select>
+        </span>
+        ` : ''}
         ${player.media === 'video' ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>` : ''}
       </div>
     `
@@ -134,6 +143,9 @@ const plator = (options = {}) => {
   }
 
   function durationChange (uiMap) {
+    if (uiMap.player.currentTime) {
+      uiMap.media.currentTime = uiMap.player.currentTime
+    }
     uiMap.total.textContent = formatTime(
       uiMap.media.duration,
       uiMap.media.duration
@@ -198,6 +210,14 @@ const plator = (options = {}) => {
     }
   }
 
+  function selectQuality (e, uiMap) {
+    // uiMap
+    uiMap.player.currentTime = uiMap.media.currentTime
+    uiMap.media.setAttribute('src', e.target.value)
+    // uiMap.media.load()
+    uiMap.media.play()
+  }
+
   function wrap () {
     nodes.forEach((media, index) => {
       let player = document.createElement('div')
@@ -209,6 +229,16 @@ const plator = (options = {}) => {
       player.control_timeout = null
       player.media = media.nodeName.toLocaleLowerCase()
       player.classList.add(`${skin}--${player.media}`)
+
+      // get all sources
+      player.sources = null
+      if (player.media === 'video') {
+        player.sources = {}
+        media.querySelectorAll('source').forEach(el => {
+          player.sources[el.getAttribute('label')] = el.getAttribute('src')
+          media.removeChild(el)
+        })
+      }
 
       let html = buildControls(player)
       player.insertAdjacentHTML('beforeend', html)
@@ -222,7 +252,8 @@ const plator = (options = {}) => {
         current: 'time--current',
         total: 'time--total',
         fullscreen: 'fullscreen',
-        buttonBig: 'button--big'
+        buttonBig: 'button--big',
+        qualityList: 'quality--list'
       }
       Object.keys(uiMap).map(item => {
         uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`)
@@ -284,6 +315,9 @@ const plator = (options = {}) => {
       if (player.media === 'video') {
         // click toggle control
         uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
+
+        // click quality switcher
+        uiMap.qualityList.addEventListener('change', (e) => selectQuality(e, uiMap))
 
         // fullscreen action
         uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
