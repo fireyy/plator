@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/fireyy/plator/compare/v0.2.1...v0.3.0) (2017-10-30)
+
+
+### Bug Fixes
+
+* fullscreenchange event ([08b9fb2](https://github.com/fireyy/plator/commit/08b9fb2))
+* iOS click toggle control ([283b318](https://github.com/fireyy/plator/commit/283b318))
+* setup ([4dd9080](https://github.com/fireyy/plator/commit/4dd9080))
+* toArray ([254f19e](https://github.com/fireyy/plator/commit/254f19e))
+
+
+### Features
+
+* add quality switcher ([8c7e5ed](https://github.com/fireyy/plator/commit/8c7e5ed))
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/fireyy/plator/compare/v0.2.0...v0.2.1) (2017-10-26)
 
