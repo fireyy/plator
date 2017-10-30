@@ -234,7 +234,7 @@ const plator = (options = {}) => {
       player.sources = null
       if (player.media === 'video') {
         player.sources = {}
-        media.querySelectorAll('source').forEach(el => {
+        toArray(media.querySelectorAll('source')).forEach(el => {
           player.sources[el.getAttribute('label')] = el.getAttribute('src')
           media.removeChild(el)
         })
@@ -300,7 +300,7 @@ const plator = (options = {}) => {
       }
 
       // play/pause button action
-      toggle.forEach(button =>
+      toArray(toggle).forEach(button =>
         button.addEventListener('click', () => togglePlay(uiMap))
       )
 
