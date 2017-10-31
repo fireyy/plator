@@ -1,3 +1,5 @@
+import CustomEvent from './CustomEvent'
+
 // Default config
 var settings = {
   thumbWidth: 15,
@@ -15,31 +17,6 @@ function trigger (element, type, properties) {
     return
   }
 
-  // Create CustomEvent constructor
-  var CustomEvent
-  if (typeof window.CustomEvent === 'function') {
-    CustomEvent = window.CustomEvent
-  } else {
-    // Polyfill CustomEvent
-    // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
-    CustomEvent = function (event, params) {
-      params = params || {
-        bubbles: false,
-        cancelable: false,
-        detail: undefined
-      }
-      var custom = document.createEvent('CustomEvent')
-      custom.initCustomEvent(
-        event,
-        params.bubbles,
-        params.cancelable,
-        params.detail
-      )
-      return custom
-    }
-    CustomEvent.prototype = window.Event.prototype
-  }
-
   // Create and dispatch the event
   var event = new CustomEvent(type, {
     bubbles: true,
@@ -52,7 +29,7 @@ function trigger (element, type, properties) {
 
 // Check if element is disabled
 function isDisabled (element) {
-  if (element instanceof HTMLElement) {
+  if (element instanceof HTMLElement) { // eslint-disable-line
     return element.disabled
   }
 
