@@ -88,7 +88,9 @@ const plator = (options = {}) => {
 
     player.classList.remove('is-waiting')
     var method = media.paused ? 'play' : 'pause'
-    media[method]()
+    if (method in media) {
+      media[method]()
+    }
     media.paused
       ? player.classList.remove('is-playing')
       : player.classList.add('is-playing')
@@ -298,7 +300,9 @@ const plator = (options = {}) => {
     uiMap.player.currentTime = uiMap.media.currentTime
     uiMap.media.setAttribute('src', e.target.value)
     // uiMap.media.load()
-    uiMap.media.play()
+    if ('play' in uiMap.media) {
+      uiMap.media.play()
+    }
   }
 
   function checkLoading (e, uiMap) {
@@ -394,7 +398,7 @@ const plator = (options = {}) => {
         durationChange(uiMap)
       )
       // Check for buffer progress
-      _onMulti(media, 'playing progress', () => handleBuffer(uiMap))
+      _onMulti(media, 'progress playing', () => handleBuffer(uiMap))
       // Handle play/pause
       _onMulti(media, 'play pause', () => updateButton(uiMap))
       // Loading
