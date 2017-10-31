@@ -1,7 +1,9 @@
 import './css/style.pcss'
 import SvgIcon from './lib/svg'
-import fixRange from './lib/range'
+import RangeFix from './lib/range'
+import FullScreen from './lib/fullscreen'
 
+// TODO: class and instances
 const plator = (options = {}) => {
   const skin = 'plator__player'
 
@@ -87,6 +89,7 @@ const plator = (options = {}) => {
   }
 
   function togglePlay (uiMap) {
+    // FIXME: replay need restart(CurrentTime = 0)
     let { media, player } = uiMap
 
     player.classList.remove('is-waiting')
@@ -253,60 +256,20 @@ const plator = (options = {}) => {
     return mediaDuration
   }
 
-  function toggleFullScreen (uiMap) {
-    // TODO: Safari video fullscreen - [webkitEnterFullscreen](https://developer.apple.com/documentation/webkitjs/htmlvideoelement/1633500-webkitenterfullscreen)
-    let player = uiMap.player
-
-    if (
-      !document.fullscreenElement && // alternative standard method
-      !document.mozFullScreenElement &&
-      !document.webkitFullscreenElement &&
-      !document.msFullscreenElement
-    ) {
-      player.classList.add(`${skin}__fullscreen`)
-
-      if (player.requestFullscreen) {
-        player.requestFullscreen()
-      } else if (player.mozRequestFullScreen) {
-        player.mozRequestFullScreen() // Firefox
-      } else if (player.webkitRequestFullscreen) {
-        player.webkitRequestFullscreen() // Chrome and Safari
-      } else if (player.msRequestFullscreen) {
-        player.msRequestFullscreen()
-      }
-
-      uiMap.fullscreen.innerHTML = icons.get('compress')
-    } else {
-      player.classList.remove(`${skin}__fullscreen`)
-
-      if (document.cancelFullScreen) {
-        document.cancelFullScreen()
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen()
-      } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen()
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen()
-      }
-
-      uiMap.fullscreen.innerHTML = icons.get('expand')
-    }
-  }
-
-  function onFullScreen (e, uiMap) {
-    var isFullscreen = document.webkitFullscreenElement !== null
-    if (!isFullscreen) {
+  function onFullScreen (e, uiMap, fullScreen) {
+    if (!fullScreen.isFullScreen()) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('expand')
     } else {
+      uiMap.player.classList.add(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('compress')
     }
   }
 
-  function selectQuality (e, uiMap) {
+  function selectQuality (url, uiMap) {
     // uiMap
     uiMap.player.currentTime = uiMap.media.currentTime
-    uiMap.media.setAttribute('src', e.target.value)
+    uiMap.media.setAttribute('src', url)
     // uiMap.media.load()
     if ('play' in uiMap.media) {
       uiMap.media.play()
@@ -340,7 +303,7 @@ const plator = (options = {}) => {
       player.sources = null
       if (player.media === 'video') {
         player.sources = {}
-        toArray(media.querySelectorAll('source')).forEach(el => {
+        toArray(media.querySelectorAll('source')).forEach((el, i) => {
           player.sources[el.getAttribute('label')] = el.getAttribute('src')
           media.removeChild(el)
         })
@@ -350,7 +313,7 @@ const plator = (options = {}) => {
       player.insertAdjacentHTML('beforeend', html)
 
       // fix input range touch
-      fixRange({
+      new RangeFix({ // eslint-disable-line
         thumbWidth: 12
       })
 
@@ -431,17 +394,21 @@ const plator = (options = {}) => {
         // click quality switcher
         uiMap.qualityList &&
           uiMap.qualityList.addEventListener('change', e =>
-            selectQuality(e, uiMap)
+            selectQuality(e.target.value, uiMap)
           )
 
         // fullscreen action
-        uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
+        let fullScreen = new FullScreen(uiMap, {
+          skin: skin
+        })
+        uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle())
+        // Handle user exiting fullscreen by escaping etc
         'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
           .split(' ')
           .forEach(
             evt =>
               `on${evt}` in document &&
-              document.addEventListener(evt, e => onFullScreen(e, uiMap))
+              document.addEventListener(evt, e => onFullScreen(e, uiMap, fullScreen))
           )
       }
 
