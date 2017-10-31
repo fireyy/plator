@@ -40,7 +40,6 @@
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-postcss": "^0.5.5",
     "rollup-plugin-serve": "^0.4.2",
-    "rollup-plugin-string": "^2.0.2",
     "rollup-watch": "^3.2.2",
     "standard-version": "^4.2.0",
     "uglify-js": "^3.1.5"
