@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/fireyy/plator/compare/v0.4.0...v0.5.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* CustomEvent ([9ffee70](https://github.com/fireyy/plator/commit/9ffee70))
+* check play method exits ([1a35101](https://github.com/fireyy/plator/commit/1a35101))
+* remove rollup-plugin-string ([940f549](https://github.com/fireyy/plator/commit/940f549))
+* svgIcon to SvgIcon ([986280e](https://github.com/fireyy/plator/commit/986280e))
+
+
+### Features
+
+* Customize UI icons with options.icons and options.iconColor ([832ad48](https://github.com/fireyy/plator/commit/832ad48))
+* error handle ([b425fbb](https://github.com/fireyy/plator/commit/b425fbb))
+* refactor fullscreen api ([ded43a0](https://github.com/fireyy/plator/commit/ded43a0))
+* refactor range ([30250ae](https://github.com/fireyy/plator/commit/30250ae))
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/fireyy/plator/compare/v0.3.0...v0.4.0) (2017-10-31)
 
