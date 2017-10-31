@@ -1,13 +1,11 @@
 import './css/style.pcss'
-import iconPlay from './img/play.svg'
-import iconPause from './img/pause.svg'
-import iconReplay from './img/replay.svg'
-import iconExpand from './img/expand.svg'
-import iconCompress from './img/compress.svg'
+import svgIcon from './lib/svg'
 import fixRange from './lib/range'
 
 const plator = (options = {}) => {
   const skin = 'plator__player'
+
+  let icons = new svgIcon(options)
 
   let nodes
 
@@ -79,7 +77,7 @@ const plator = (options = {}) => {
 
   function updateButton (uiMap) {
     clearControlTimeout(uiMap.player)
-    var icon = uiMap.media.paused ? iconPlay : iconPause
+    var icon = uiMap.media.paused ? icons.get('play') : icons.get('pause')
     uiMap.player.classList[uiMap.media.paused ? 'remove' : 'add']('is-playing')
     uiMap.toggle.forEach(button => (button.innerHTML = icon))
     if (uiMap.player.error) {
@@ -102,7 +100,7 @@ const plator = (options = {}) => {
   }
 
   function showReplay (msg, uiMap) {
-    uiMap.buttonBig.innerHTML = `${iconReplay}<span>${msg}</span>`
+    uiMap.buttonBig.innerHTML = `${icons.get('replay')}<span>${msg}</span>`
   }
 
   function toggleControl (uiMap) {
@@ -125,11 +123,11 @@ const plator = (options = {}) => {
       ${player.media === 'video'
         ? `
           <div class="${skin}__poster"></div>
-          <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${iconPlay}</button>
+          <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${icons.get('play')}</button>
         `
         : ''}
       <div class="${skin}__controls">
-        <button class="${skin}__button ${skin}__button--toggle" title="Toggle media">${iconPlay}</button>
+        <button class="${skin}__button ${skin}__button--toggle" title="Toggle media">${icons.get('play')}</button>
         <span class="${skin}__time--current">00:00</span>
         <div class="${skin}__progress">
           <input class="${skin}__progress--track" type="range" min="0" max="100" step="0.1" value="0">
@@ -149,7 +147,7 @@ const plator = (options = {}) => {
         `
           : ''}
         ${player.media === 'video'
-          ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>`
+          ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${icons.get('expand')}</button>`
           : ''}
       </div>
     `
@@ -276,7 +274,7 @@ const plator = (options = {}) => {
         player.msRequestFullscreen()
       }
 
-      uiMap.fullscreen.innerHTML = iconCompress
+      uiMap.fullscreen.innerHTML = icons.get('compress')
     } else {
       player.classList.remove(`${skin}__fullscreen`)
 
@@ -290,7 +288,7 @@ const plator = (options = {}) => {
         document.msExitFullscreen()
       }
 
-      uiMap.fullscreen.innerHTML = iconExpand
+      uiMap.fullscreen.innerHTML = icons.get('expand')
     }
   }
 
@@ -298,9 +296,9 @@ const plator = (options = {}) => {
     var isFullscreen = document.webkitFullscreenElement !== null
     if (!isFullscreen) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
-      uiMap.fullscreen.innerHTML = iconExpand
+      uiMap.fullscreen.innerHTML = icons.get('expand')
     } else {
-      uiMap.fullscreen.innerHTML = iconCompress
+      uiMap.fullscreen.innerHTML = icons.get('compress')
     }
   }
 
