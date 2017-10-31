@@ -246,7 +246,10 @@ input.plator__player__progress--track[type=range] {
   appearance: none;
   cursor: pointer;
   border: none;
-  background: 0 0
+  background: 0 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 input.plator__player__progress--track[type=range]::-webkit-slider-runnable-track {

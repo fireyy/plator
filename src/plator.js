@@ -4,6 +4,7 @@ import iconPause from './img/pause.svg'
 import iconReplay from './img/replay.svg'
 import iconExpand from './img/expand.svg'
 import iconCompress from './img/compress.svg'
+import fixRange from './lib/range'
 
 const plator = (options = {}) => {
   const skin = 'plator__player'
@@ -21,15 +22,43 @@ const plator = (options = {}) => {
     )
   }
 
+  // type helpers
+
+  function isNumber (input) {
+    return (
+      input !== null &&
+      ((typeof input === 'number' && !isNaN(input - 0)) ||
+        (typeof input === 'object' && input.constructor === Number))
+    )
+  }
+
   // array helpers
 
   function toArray (input, scope = document) {
     return Array.prototype.slice.call(input)
   }
 
+  // event helpers
+
+  function _onMulti (element, events, callback, useCapture) {
+    if (element) {
+      events
+        .split(' ')
+        .forEach(evt => element.addEventListener(evt, callback, false))
+    }
+  }
+
+  // class helpers
+
+  function _toggleClass (element, className, state) {
+    if (element) {
+      element.classList[state ? 'add' : 'remove'](className)
+    }
+  }
+
   // helpers
 
-  function formatTime (time, total) {
+  function formatTime (time, uiMap) {
     if (isNaN(time)) {
       time = 0
     }
@@ -39,7 +68,7 @@ const plator = (options = {}) => {
     let hours = parseInt((time / 60 / 60) % 60)
 
     // Do we need to display hours?
-    var displayHours = parseInt((total / 60 / 60) % 60) > 0
+    var displayHours = parseInt((getDuration(uiMap) / 60 / 60) % 60) > 0
 
     // Ensure it's two digits. For example, 03 rather than 3.
     secs = ('0' + secs).slice(-2)
@@ -97,62 +126,122 @@ const plator = (options = {}) => {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
-        ${player.sources && Object.keys(player.sources).length > 0 ? `
+        ${player.sources && Object.keys(player.sources).length > 0
+          ? `
         <span class="${skin}__quality--list">
           <select>
-          ${
-            Object.keys(player.sources).map(s => `<option value="${player.sources[s]}">${s}</option>`)
-          }
+          ${Object.keys(player.sources).map(
+            s => `<option value="${player.sources[s]}">${s}</option>`
+          )}
           </select>
         </span>
-        ` : ''}
-        ${player.media === 'video' ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>` : ''}
+        `
+          : ''}
+        ${player.media === 'video'
+          ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${iconExpand}</button>`
+          : ''}
       </div>
     `
   }
 
-  function handleProgress (uiMap) {
+  function timeUpdate (e, uiMap) {
     let { media, player } = uiMap
 
-    player.classList.remove('is-waiting')
-    uiMap.played.value = uiMap.track.value = media.currentTime
-      ? media.currentTime / media.duration * 100
-      : 0
     progressTime(uiMap)
+
+    // Ignore updates while seeking
+    if (e && e.type === 'timeupdate' && media.seeking) {
+      return
+    }
+
+    player.classList.remove('is-waiting')
+
+    let value = getPercentage(media.currentTime, getDuration(uiMap))
+    if (e.type === 'timeupdate' && uiMap.track) {
+      uiMap.track.value = value
+    }
+    setProgress(uiMap.played, value)
+  }
+
+  function setProgress (progress, value) {
+    progress.value = value
   }
 
   function handleBuffer (uiMap) {
     // try
     try {
       let buffer = uiMap.media.buffered.end(0)
-      uiMap.buffer.value = buffer / uiMap.media.duration * 100
+      let value = getPercentage(buffer, getDuration(uiMap))
+      setProgress(uiMap.buffer, value)
     } catch (e) {}
   }
 
   function progressTime (uiMap) {
-    uiMap.current.textContent = formatTime(
-      uiMap.media.currentTime,
-      uiMap.media.duration
-    )
+    uiMap.current.textContent = formatTime(uiMap.media.currentTime, uiMap)
   }
 
   function durationChange (uiMap) {
     if (uiMap.player.currentTime) {
       uiMap.media.currentTime = uiMap.player.currentTime
     }
-    uiMap.total.textContent = formatTime(
-      uiMap.media.duration,
-      uiMap.media.duration
-    )
+    let duration = getDuration(uiMap)
+    uiMap.total.textContent = formatTime(duration, uiMap)
     progressTime(uiMap)
   }
 
   function inputProcess (e, uiMap) {
     clearControlTimeout(uiMap.player)
-    let time = e.target.value / 100 * uiMap.media.duration
 
-    uiMap.media.currentTime =
-      time < 0 ? 0 : time > uiMap.media.duration ? uiMap.media.duration : time
+    let duration = getDuration(uiMap)
+    let time = e.target.value / e.target.max * duration
+
+    time = time < 0 ? 0 : time > duration ? duration : time
+
+    updateSeekDisplay(time, uiMap)
+
+    try {
+      uiMap.media.currentTime = time.toFixed(4)
+    } catch (e) {}
+  }
+
+  function updateSeekDisplay (time, uiMap) {
+    // Default to 0
+    if (!isNumber(time)) {
+      time = 0
+    }
+
+    let duration = getDuration(uiMap)
+    let value = getPercentage(time, duration)
+
+    // Update palyed progress
+    if (uiMap.played) {
+      uiMap.played.value = value
+    }
+
+    // Update range input
+    if (uiMap.track) {
+      uiMap.track.value = value
+    }
+  }
+
+  // Get percentage
+  function getPercentage (current, max) {
+    if (current === 0 || max === 0 || isNaN(current) || isNaN(max)) {
+      return 0
+    }
+    return (current / max * 100).toFixed(2)
+  }
+
+  // Get the duration
+  function getDuration (uiMap) {
+    let mediaDuration = 0
+
+    // Only if duration available
+    if (uiMap.media.duration !== null && !isNaN(uiMap.media.duration)) {
+      mediaDuration = uiMap.media.duration
+    }
+
+    return mediaDuration
   }
 
   function toggleFullScreen (uiMap) {
@@ -212,6 +301,17 @@ const plator = (options = {}) => {
     uiMap.media.play()
   }
 
+  function checkLoading (e, uiMap) {
+    var loading = e.type === 'waiting'
+
+    // Clear timer
+    clearTimeout(uiMap.player.loadingTimer)
+
+    uiMap.player.loadingTimer = setTimeout(function () {
+      _toggleClass(uiMap.player, 'is-waiting', loading)
+    }, loading ? 250 : 0)
+  }
+
   function wrap () {
     nodes.forEach((media, index) => {
       let player = document.createElement('div')
@@ -236,6 +336,11 @@ const plator = (options = {}) => {
 
       let html = buildControls(player)
       player.insertAdjacentHTML('beforeend', html)
+
+      // fix input range touch
+      fixRange({
+        thumbWidth: 12
+      })
 
       let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
       let uiMap = {
@@ -268,40 +373,32 @@ const plator = (options = {}) => {
 
       // events
 
-      const events = {
-        play (e) {
-          updateButton(uiMap)
-        },
-        pause (e) {
-          updateButton(uiMap)
-        },
-        timeupdate (e) {
-          handleProgress(uiMap)
-        },
-        progress (e) {
-          handleBuffer(uiMap)
-        },
-        waiting (e) {
-          player.classList.add('is-waiting')
-        },
-        ended (e) {
-          player.classList.remove('is-playing')
-          uiMap.buttonBig.innerHTML = iconReplay
-        },
-        durationchange (e) {
-          durationChange(uiMap)
-        }
-      }
-
       // play/pause button action
       toArray(toggle).forEach(button =>
         button.addEventListener('click', () => togglePlay(uiMap))
       )
 
       // media event bind
-      Object.keys(events).forEach(evt =>
-        media.addEventListener(evt, events[evt], false)
+      media.addEventListener(
+        'ended',
+        e => {
+          player.classList.remove('is-playing')
+          uiMap.buttonBig.innerHTML = iconReplay
+        },
+        false
       )
+      // Time change on media
+      _onMulti(media, 'timeupdate seeking', e => timeUpdate(e, uiMap))
+      // Display duration
+      _onMulti(media, 'durationchange loadedmetadata', () =>
+        durationChange(uiMap)
+      )
+      // Check for buffer progress
+      _onMulti(media, 'playing progress', () => handleBuffer(uiMap))
+      // Handle play/pause
+      _onMulti(media, 'play pause', () => updateButton(uiMap))
+      // Loading
+      _onMulti(media, 'waiting canplay seeked', e => checkLoading(e, uiMap))
 
       // process track input
       uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
@@ -311,14 +408,19 @@ const plator = (options = {}) => {
         uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
 
         // click quality switcher
-        uiMap.qualityList && uiMap.qualityList.addEventListener('change', (e) => selectQuality(e, uiMap))
+        uiMap.qualityList &&
+          uiMap.qualityList.addEventListener('change', e =>
+            selectQuality(e, uiMap)
+          )
 
         // fullscreen action
         uiMap.fullscreen.addEventListener('click', e => toggleFullScreen(uiMap))
         'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
           .split(' ')
-          .forEach(evt =>
-            `on${evt}` in document && document.addEventListener(evt, e => onFullScreen(e, uiMap))
+          .forEach(
+            evt =>
+              `on${evt}` in document &&
+              document.addEventListener(evt, e => onFullScreen(e, uiMap))
           )
       }
 
