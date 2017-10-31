@@ -1,5 +1,13 @@
 # Plator
 
+<p align="center">
+  <a href="https://jsfiddle.net/fireyy/de9mgz8y/" target="_blank">
+    <img src="Screen.png" width="700px">
+    <br>
+    Live Demo
+  </a>
+</p>
+
 > A simple HTML5 video/audio player.
 
 ## Install
