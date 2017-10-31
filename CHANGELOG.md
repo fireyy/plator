@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.4.0"></a>
+# [0.4.0](https://github.com/fireyy/plator/compare/v0.3.0...v0.4.0) (2017-10-31)
+
+
+### Features
+
+* refactor media event ([da34a6d](https://github.com/fireyy/plator/commit/da34a6d))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/fireyy/plator/compare/v0.2.1...v0.3.0) (2017-10-30)
 
