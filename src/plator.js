@@ -80,7 +80,12 @@ const plator = (options = {}) => {
   function updateButton (uiMap) {
     clearControlTimeout(uiMap.player)
     var icon = uiMap.media.paused ? iconPlay : iconPause
+    uiMap.player.classList[uiMap.media.paused ? 'remove' : 'add']('is-playing')
     uiMap.toggle.forEach(button => (button.innerHTML = icon))
+    if (uiMap.player.error) {
+      uiMap.player.error = false
+      showReplay('网络繁忙，请重试', uiMap)
+    }
   }
 
   function togglePlay (uiMap) {
@@ -94,6 +99,10 @@ const plator = (options = {}) => {
     media.paused
       ? player.classList.remove('is-playing')
       : player.classList.add('is-playing')
+  }
+
+  function showReplay (msg, uiMap) {
+    uiMap.buttonBig.innerHTML = `${iconReplay}<span>${msg}</span>`
   }
 
   function toggleControl (uiMap) {
@@ -387,7 +396,16 @@ const plator = (options = {}) => {
         'ended',
         e => {
           player.classList.remove('is-playing')
-          uiMap.buttonBig.innerHTML = iconReplay
+          showReplay('重播', uiMap)
+        },
+        false
+      )
+      // error handle
+      media.addEventListener(
+        'error',
+        e => {
+          console.log('error', e)
+          player.error = true
         },
         false
       )
