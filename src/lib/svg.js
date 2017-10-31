@@ -1,4 +1,4 @@
-class svgIcon {
+class SvgIcon {
   constructor (options) {
     this.icons = options.icons || {
       play: [
@@ -39,4 +39,4 @@ class svgIcon {
   }
 }
 
-export default svgIcon
+export default SvgIcon

@@ -1,11 +1,11 @@
 import './css/style.pcss'
-import svgIcon from './lib/svg'
+import SvgIcon from './lib/svg'
 import fixRange from './lib/range'
 
 const plator = (options = {}) => {
   const skin = 'plator__player'
 
-  let icons = new svgIcon(options)
+  let icons = new SvgIcon(options)
 
   let nodes
 
@@ -254,6 +254,7 @@ const plator = (options = {}) => {
   }
 
   function toggleFullScreen (uiMap) {
+    // TODO: Safari video fullscreen - [webkitEnterFullscreen](https://developer.apple.com/documentation/webkitjs/htmlvideoelement/1633500-webkitenterfullscreen)
     let player = uiMap.player
 
     if (
