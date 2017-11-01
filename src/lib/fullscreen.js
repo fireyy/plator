@@ -13,6 +13,9 @@ class FullScreen {
         if (document[browserPrefixes[i] + 'CancelFullScreen']) {
           this.supportsFullScreen = true
           break
+        } else if (this.uiMap.media.webkitSupportsFullscreen) {
+          this.supportsFullScreen = true
+          break
         } else if (
           document.msExitFullscreen &&
           document.msFullscreenEnabled
@@ -32,6 +35,7 @@ class FullScreen {
         return (
           document.fullscreenElement ||
           document.mozFullScreenElement ||
+          this.uiMap.media.webkitDisplayingFullscreen ||
           document.webkitFullscreenElement ||
           document.msFullscreenElement
         )
@@ -49,11 +53,11 @@ class FullScreen {
           this.uiMap.player.requestFullscreen()
         } else if (this.uiMap.player.mozRequestFullScreen) {
           this.uiMap.player.mozRequestFullScreen()
-        } else if (this.uiMap.player.webkitRequestFullscreen) {
-          this.uiMap.player.webkitRequestFullscreen()
         } else if (this.uiMap.media.webkitEnterFullscreen) {
           // Safari for iOS
           this.uiMap.media.webkitEnterFullscreen()
+        } else if (this.uiMap.player.webkitRequestFullscreen) {
+          this.uiMap.player.webkitRequestFullscreen()
         } else if (this.uiMap.player.msRequestFullscreen) {
           this.uiMap.player.msRequestFullscreen()
         }
@@ -71,10 +75,10 @@ class FullScreen {
           document.cancelFullScreen()
         } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen()
-        } else if (document.webkitCancelFullScreen) {
-          document.webkitCancelFullScreen()
         } else if (this.uiMap.media.webkitExitFullscreen) {
           this.uiMap.media.webkitExitFullscreen()
+        } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen()
         } else if (document.msExitFullscreen) {
           document.msExitFullscreen()
         }

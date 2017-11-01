@@ -65,6 +65,7 @@ Plator will account for the following properties in options:
 
   * `type` The media type to pack, `video`/`audio` or `video, audio`, default to `audio`.
   * `icons` Customize UI icons use svg.
+
       ```js
         {
           play: [
@@ -80,6 +81,7 @@ Plator will account for the following properties in options:
           ...
         }
       ```
+
   * `iconsColor` Color used by svg icon. Default `#fff`.
 
 ### `setup()`
