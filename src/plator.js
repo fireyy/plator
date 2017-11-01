@@ -1,7 +1,7 @@
 import './css/style.pcss'
 import SvgIcon from './lib/svg'
-import RangeFix from './lib/range'
 import FullScreen from './lib/fullscreen'
+// import Events from './lib/events'
 
 // TODO: class and instances
 const plator = (options = {}) => {
@@ -15,6 +15,7 @@ const plator = (options = {}) => {
 
   const packed = 'data-packed'
   const type = options.type ? options.type : 'audio'
+  const full = options.full || 'web'
 
   function selectors () {
     return toArray(document.querySelectorAll(type)).filter(
@@ -294,6 +295,9 @@ const plator = (options = {}) => {
       media.parentNode.insertBefore(player, media)
       player.appendChild(media)
 
+      // events
+      // player.events = new Events()
+
       // hide control timeout
       player.control_timeout = null
       player.media = media.nodeName.toLocaleLowerCase()
@@ -311,11 +315,6 @@ const plator = (options = {}) => {
 
       let html = buildControls(player)
       player.insertAdjacentHTML('beforeend', html)
-
-      // fix input range touch
-      new RangeFix({ // eslint-disable-line
-        thumbWidth: 12
-      })
 
       let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
       let uiMap = {
@@ -341,6 +340,8 @@ const plator = (options = {}) => {
       if (player.media === 'video') {
         player.classList.add('hide-control')
         media.removeAttribute('controls')
+        media.setAttribute('playsinline', 'true')
+        media.setAttribute('webkit-playsinline', 'true')
         uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
           'poster'
         )})`
@@ -387,6 +388,9 @@ const plator = (options = {}) => {
       // process track input
       uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
 
+      // events
+      // player.events.mediaEvents.forEach(evt => media.addEventListener(evt, () => player.events.trigger(evt)))
+
       if (player.media === 'video') {
         // click toggle control
         uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
@@ -401,7 +405,8 @@ const plator = (options = {}) => {
         let fullScreen = new FullScreen(uiMap, {
           skin: skin
         })
-        uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle())
+        // TODO: fullscreen events - fullscreen & fullscreen_cancel
+        uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(full))
         // Handle user exiting fullscreen by escaping etc
         'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
           .split(' ')

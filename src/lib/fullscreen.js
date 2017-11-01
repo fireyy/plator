@@ -28,8 +28,8 @@ class FullScreen {
     }
   }
 
-  isFullScreen () {
-    let type = this.supportsFullScreen ? 'browser' : 'web'
+  isFullScreen (type = 'web') {
+    // let type = this.supportsFullScreen ? 'browser' : 'web'
     switch (type) {
       case 'browser':
         return (
@@ -46,7 +46,7 @@ class FullScreen {
     }
   }
 
-  request (type = 'browser') {
+  request (type = 'web') {
     switch (type) {
       case 'browser':
         if (this.uiMap.player.requestFullscreen) {
@@ -68,7 +68,7 @@ class FullScreen {
     }
   }
 
-  cancel (type = 'browser') {
+  cancel (type = 'web') {
     switch (type) {
       case 'browser':
         if (document.cancelFullScreen) {
@@ -91,9 +91,9 @@ class FullScreen {
     }
   }
 
-  toggle () {
-    let type = this.supportsFullScreen ? 'browser' : 'web'
-    if (this.isFullScreen()) {
+  toggle (type = 'web') {
+    // let type = this.supportsFullScreen ? 'browser' : 'web'
+    if (this.isFullScreen(type)) {
       this.cancel(type)
     } else {
       this.request(type)

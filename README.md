@@ -83,6 +83,7 @@ Plator will account for the following properties in options:
       ```
 
   * `iconsColor` Color used by svg icon. Default `#fff`.
+  * `full` Fullscreen type, `browser` or `web`. Default `web`.
 
 ### `setup()`
 init function.
