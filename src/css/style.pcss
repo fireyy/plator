@@ -13,6 +13,15 @@
   cursor: pointer;
   margin-bottom: 20px;
   font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
+  &:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+  }
   & video {
     width: 100%;
     height: auto;
@@ -313,4 +322,13 @@ input.plator__player__progress--track[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     background: transparent;
   }
+}
+
+// To hide scroll bar, apply this class to <body> in fullscreen mode
+.plator-web-fullscreen-fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
 }

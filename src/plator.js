@@ -2,7 +2,7 @@ import './css/style.pcss'
 import SvgIcon from './lib/svg'
 import FullScreen from './lib/fullscreen'
 import Events from './lib/events'
-import { toArray, isNumber, _onMulti, _toggleClass } from './lib/utils'
+import { toArray, isNumber, onMulti, toggleClass } from './lib/utils'
 
 const skin = 'plator__player'
 const packed = 'data-packed'
@@ -95,17 +95,17 @@ class Plator {
       false
     )
     // Time change on media
-    _onMulti(media, 'timeupdate seeking', e => this.timeUpdate(e))
+    onMulti(media, 'timeupdate seeking', e => this.timeUpdate(e))
     // Display duration
-    _onMulti(media, 'durationchange loadedmetadata', () =>
+    onMulti(media, 'durationchange loadedmetadata', () =>
       this.durationChange()
     )
     // Check for buffer progress
-    _onMulti(media, 'progress playing', () => this.handleBuffer())
+    onMulti(media, 'progress playing', () => this.handleBuffer())
     // Handle play/pause
-    _onMulti(media, 'play pause', () => this.updateButton())
+    onMulti(media, 'play pause', () => this.updateButton())
     // Loading
-    _onMulti(media, 'waiting canplay seeked', e => this.checkLoading(e))
+    onMulti(media, 'waiting canplay seeked', e => this.checkLoading(e))
 
     // process track input
     this.uiMap.track.addEventListener('input', e => this.inputProcess(e))
@@ -127,18 +127,10 @@ class Plator {
       let fullScreen = new FullScreen(this, {
         skin: skin
       })
-      // TODO: fullscreen events - fullscreen & fullscreen_cancel
+
       this.uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(this.full))
       this.events.on('fullscreen', () => this.onFullScreen(fullScreen))
       this.events.on('fullscreen_cancel', () => this.onFullScreen(fullScreen))
-      // Handle user exiting fullscreen by escaping etc
-      'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
-        .split(' ')
-        .forEach(
-          evt =>
-            `on${evt}` in document &&
-            document.addEventListener(evt, e => this.onFullScreen(fullScreen))
-        )
     }
 
     media.setAttribute(packed, '')
@@ -378,7 +370,7 @@ class Plator {
     clearTimeout(uiMap.player.loadingTimer)
 
     uiMap.player.loadingTimer = setTimeout(() => {
-      _toggleClass(uiMap.player, 'is-waiting', loading)
+      toggleClass(uiMap.player, 'is-waiting', loading)
     }, loading ? 250 : 0)
   }
 }

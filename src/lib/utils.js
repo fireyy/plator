@@ -16,7 +16,7 @@ export function toArray (input, scope = document) {
 
 // event helpers
 
-export function _onMulti (element, events, callback, useCapture) {
+export function onMulti (element, events, callback, useCapture) {
   if (element) {
     events
       .split(' ')
@@ -26,8 +26,27 @@ export function _onMulti (element, events, callback, useCapture) {
 
 // class helpers
 
-export function _toggleClass (element, className, state) {
+export function toggleClass (element, className, state) {
   if (element) {
     element.classList[state ? 'add' : 'remove'](className)
   }
+}
+
+export function getScrollPosition () {
+  return {
+    left:
+      window.pageXOffset ||
+      document.documentElement.scrollLeft ||
+      document.body.scrollLeft ||
+      0,
+    top:
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0
+  }
+}
+
+export function setScrollPosition ({ left = 0, top = 0 }) {
+  window.scrollTo(left, top)
 }

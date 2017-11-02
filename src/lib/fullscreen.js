@@ -1,36 +1,30 @@
+import { setScrollPosition, getScrollPosition } from './utils'
+
 class FullScreen {
   constructor (plator, options = {}) {
     this.uiMap = plator.uiMap
     this.events = plator.events
     this.settings = options
-    this.supportsFullScreen = false
-    let browserPrefixes = 'webkit moz ms'.split(' ')
 
-    if (document.cancelFullScreen) {
-      this.supportsFullScreen = true
-    } else {
-      // Check for fullscreen support by vendor prefix
-      for (var i = 0, il = browserPrefixes.length; i < il; i++) {
-        if (document[browserPrefixes[i] + 'CancelFullScreen']) {
-          this.supportsFullScreen = true
-          break
-        } else if (this.uiMap.media.webkitSupportsFullscreen) {
-          this.supportsFullScreen = true
-          break
-        } else if (
-          document.msExitFullscreen &&
-          document.msFullscreenEnabled
-        ) {
-          // Special case for MS
-          this.supportsFullScreen = true
-          break
-        }
+    const fullscreenchange = () => {
+      if (this.isFullScreen('browser')) {
+        this.events.trigger('fullscreen')
+      } else {
+        this.events.trigger('fullscreen_cancel')
       }
     }
+
+    // Handle user exiting fullscreen by escaping etc
+    'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
+      .split(' ')
+      .forEach(
+        evt =>
+          `on${evt}` in document &&
+          document.addEventListener(evt, fullscreenchange)
+      )
   }
 
   isFullScreen (type = 'web') {
-    // let type = this.supportsFullScreen ? 'browser' : 'web'
     switch (type) {
       case 'browser':
         return (
@@ -65,9 +59,14 @@ class FullScreen {
         break
       case 'web':
         this.uiMap.player.classList.add(`${this.settings.skin}__fullscreen`)
+
+        // record last position then hide scrollbars
+        this.lastScrollPosition = getScrollPosition()
+        document.body.classList.add('plator-web-fullscreen-fix')
+
+        this.events.trigger('fullscreen')
         break
     }
-    this.events.trigger('fullscreen')
   }
 
   cancel (type = 'web') {
@@ -86,16 +85,18 @@ class FullScreen {
         }
         break
       case 'web':
-        this.uiMap.player.classList.remove(
-          `${this.settings.skin}__fullscreen`
-        )
+        this.uiMap.player.classList.remove(`${this.settings.skin}__fullscreen`)
+
+        // restore scrollbars and last position
+        document.body.classList.remove('plator-web-fullscreen-fix')
+        setScrollPosition(this.lastScrollPosition)
+
+        this.events.trigger('fullscreen_cancel')
         break
     }
-    this.events.trigger('fullscreen_cancel')
   }
 
   toggle (type = 'web') {
-    // let type = this.supportsFullScreen ? 'browser' : 'web'
     if (this.isFullScreen(type)) {
       this.cancel(type)
     } else {
