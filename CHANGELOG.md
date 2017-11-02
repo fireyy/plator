@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.0"></a>
+# [0.6.0](https://github.com/fireyy/plator/compare/v0.5.0...v0.6.0) (2017-11-02)
+
+
+### Bug Fixes
+
+* Support iOS Safari video fullscreen ([e0b3bc5](https://github.com/fireyy/plator/commit/e0b3bc5))
+* fullscreen button event ([93d6b9f](https://github.com/fireyy/plator/commit/93d6b9f))
+* iOS fullscreen scroll bug ([e2f9f57](https://github.com/fireyy/plator/commit/e2f9f57))
+
+
+### Features
+
+* add fullscreen type option ([6415ede](https://github.com/fireyy/plator/commit/6415ede))
+* class and instances ([fe3070d](https://github.com/fireyy/plator/commit/fe3070d))
+* events ([5cc58de](https://github.com/fireyy/plator/commit/5cc58de))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://github.com/fireyy/plator/compare/v0.4.0...v0.5.0) (2017-10-31)
 
