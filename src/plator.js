@@ -11,7 +11,7 @@ let icons = null
 
 class Plator {
   constructor (media, options = {}) {
-    const full = options.full || 'web'
+    this.full = options.full || 'web'
     let player = document.createElement('div')
     player.classList.add(`${skin}`)
     media.parentNode.insertBefore(player, media)
@@ -128,14 +128,16 @@ class Plator {
         skin: skin
       })
       // TODO: fullscreen events - fullscreen & fullscreen_cancel
-      this.uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(full))
+      this.uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(this.full))
+      this.events.on('fullscreen', () => this.onFullScreen(fullScreen))
+      this.events.on('fullscreen_cancel', () => this.onFullScreen(fullScreen))
       // Handle user exiting fullscreen by escaping etc
       'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
         .split(' ')
         .forEach(
           evt =>
             `on${evt}` in document &&
-            document.addEventListener(evt, e => this.onFullScreen(e, fullScreen))
+            document.addEventListener(evt, e => this.onFullScreen(fullScreen))
         )
     }
 
@@ -346,9 +348,9 @@ class Plator {
     return mediaDuration
   }
 
-  onFullScreen (e, fullScreen) {
+  onFullScreen (fullScreen) {
     let {uiMap} = this
-    if (!fullScreen.isFullScreen()) {
+    if (!fullScreen.isFullScreen(this.full)) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('expand')
     } else {

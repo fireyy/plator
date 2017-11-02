@@ -65,9 +65,9 @@ class FullScreen {
         break
       case 'web':
         this.uiMap.player.classList.add(`${this.settings.skin}__fullscreen`)
-        this.events.trigger('fullscreen')
         break
     }
+    this.events.trigger('fullscreen')
   }
 
   cancel (type = 'web') {
@@ -89,9 +89,9 @@ class FullScreen {
         this.uiMap.player.classList.remove(
           `${this.settings.skin}__fullscreen`
         )
-        this.events.trigger('fullscreen_cancel')
         break
     }
+    this.events.trigger('fullscreen_cancel')
   }
 
   toggle (type = 'web') {
