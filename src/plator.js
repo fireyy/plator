@@ -1,65 +1,147 @@
 import './css/style.pcss'
 import SvgIcon from './lib/svg'
 import FullScreen from './lib/fullscreen'
-// import Events from './lib/events'
+import Events from './lib/events'
+import { toArray, isNumber, _onMulti, _toggleClass } from './lib/utils'
 
-// TODO: class and instances
-const plator = (options = {}) => {
-  const skin = 'plator__player'
+const skin = 'plator__player'
+const packed = 'data-packed'
+const instances = []
+let icons = null
 
-  let icons = new SvgIcon(options)
+class Plator {
+  constructor (media, options = {}) {
+    const full = options.full || 'web'
+    let player = document.createElement('div')
+    player.classList.add(`${skin}`)
+    media.parentNode.insertBefore(player, media)
+    player.appendChild(media)
 
-  let nodes
+    // events
+    this.events = new Events()
 
-  // options
+    // hide control timeout
+    player.control_timeout = null
+    player.media = media.nodeName.toLocaleLowerCase()
+    player.classList.add(`${skin}--${player.media}`)
 
-  const packed = 'data-packed'
-  const type = options.type ? options.type : 'audio'
-  const full = options.full || 'web'
+    // get all sources
+    player.sources = null
+    if (player.media === 'video') {
+      player.sources = {}
+      toArray(media.querySelectorAll('source')).forEach((el, i) => {
+        player.sources[el.getAttribute('label')] = el.getAttribute('src')
+        media.removeChild(el)
+      })
+    }
 
-  function selectors () {
-    return toArray(document.querySelectorAll(type)).filter(
-      node => !node.hasAttribute(`${packed}`)
+    let html = this.buildControls(player)
+    player.insertAdjacentHTML('beforeend', html)
+
+    let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
+    this.uiMap = {
+      poster: 'poster',
+      track: 'progress--track',
+      buffer: 'progress--buffer',
+      played: 'progress--played',
+      current: 'time--current',
+      total: 'time--total',
+      fullscreen: 'fullscreen',
+      buttonBig: 'button--big',
+      qualityList: 'quality--list select'
+    }
+    Object.keys(this.uiMap).map(item => {
+      this.uiMap[item] = player.querySelector(`.${skin}__${this.uiMap[item]}`)
+    })
+
+    this.uiMap.player = player
+    this.uiMap.toggle = toggle
+    this.uiMap.media = media
+
+    // poster
+    if (player.media === 'video') {
+      player.classList.add('hide-control')
+      media.removeAttribute('controls')
+      media.setAttribute('playsinline', 'true')
+      media.setAttribute('webkit-playsinline', 'true')
+      this.uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
+        'poster'
+      )})`
+    }
+
+    // events
+
+    // play/pause button action
+    toArray(toggle).forEach(button =>
+      button.addEventListener('click', () => this.togglePlay())
     )
-  }
 
-  // type helpers
-
-  function isNumber (input) {
-    return (
-      input !== null &&
-      ((typeof input === 'number' && !isNaN(input - 0)) ||
-        (typeof input === 'object' && input.constructor === Number))
+    // media event bind
+    media.addEventListener(
+      'ended',
+      e => {
+        player.classList.remove('is-playing')
+        this.showReplay('重播')
+      },
+      false
     )
-  }
+    // error handle
+    media.addEventListener(
+      'error',
+      e => {
+        console.log('error', e)
+        player.error = true
+      },
+      false
+    )
+    // Time change on media
+    _onMulti(media, 'timeupdate seeking', e => this.timeUpdate(e))
+    // Display duration
+    _onMulti(media, 'durationchange loadedmetadata', () =>
+      this.durationChange()
+    )
+    // Check for buffer progress
+    _onMulti(media, 'progress playing', () => this.handleBuffer())
+    // Handle play/pause
+    _onMulti(media, 'play pause', () => this.updateButton())
+    // Loading
+    _onMulti(media, 'waiting canplay seeked', e => this.checkLoading(e))
 
-  // array helpers
+    // process track input
+    this.uiMap.track.addEventListener('input', e => this.inputProcess(e))
 
-  function toArray (input, scope = document) {
-    return Array.prototype.slice.call(input)
-  }
+    // events
+    this.events.mediaEvents.forEach(evt => media.addEventListener(evt, () => this.events.trigger(evt)))
 
-  // event helpers
+    if (player.media === 'video') {
+      // click toggle control
+      this.uiMap.poster.addEventListener('click', () => this.toggleControl())
 
-  function _onMulti (element, events, callback, useCapture) {
-    if (element) {
-      events
+      // click quality switcher
+      this.uiMap.qualityList &&
+        this.uiMap.qualityList.addEventListener('change', e =>
+          this.selectQuality(e.target.value)
+        )
+
+      // fullscreen action
+      let fullScreen = new FullScreen(this, {
+        skin: skin
+      })
+      // TODO: fullscreen events - fullscreen & fullscreen_cancel
+      this.uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(full))
+      // Handle user exiting fullscreen by escaping etc
+      'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
         .split(' ')
-        .forEach(evt => element.addEventListener(evt, callback, false))
+        .forEach(
+          evt =>
+            `on${evt}` in document &&
+            document.addEventListener(evt, e => this.onFullScreen(e, fullScreen))
+        )
     }
+
+    media.setAttribute(packed, '')
   }
-
-  // class helpers
-
-  function _toggleClass (element, className, state) {
-    if (element) {
-      element.classList[state ? 'add' : 'remove'](className)
-    }
-  }
-
-  // helpers
-
-  function formatTime (time, uiMap) {
+  formatTime (time) {
     if (isNaN(time)) {
       time = 0
     }
@@ -69,7 +151,7 @@ const plator = (options = {}) => {
     let hours = parseInt((time / 60 / 60) % 60)
 
     // Do we need to display hours?
-    var displayHours = parseInt((getDuration(uiMap) / 60 / 60) % 60) > 0
+    var displayHours = parseInt((this.getDuration() / 60 / 60) % 60) > 0
 
     // Ensure it's two digits. For example, 03 rather than 3.
     secs = ('0' + secs).slice(-2)
@@ -78,20 +160,21 @@ const plator = (options = {}) => {
     return (displayHours ? hours + ':' : '') + mins + ':' + secs
   }
 
-  function updateButton (uiMap) {
-    clearControlTimeout(uiMap.player)
+  updateButton () {
+    let {uiMap} = this
+    this.clearControlTimeout()
     var icon = uiMap.media.paused ? icons.get('play') : icons.get('pause')
     uiMap.player.classList[uiMap.media.paused ? 'remove' : 'add']('is-playing')
     uiMap.toggle.forEach(button => (button.innerHTML = icon))
     if (uiMap.player.error) {
       uiMap.player.error = false
-      showReplay('网络繁忙，请重试', uiMap)
+      this.showReplay('网络繁忙，请重试', uiMap)
     }
   }
 
-  function togglePlay (uiMap) {
+  togglePlay (uiMap) {
     // FIXME: replay need restart(CurrentTime = 0)
-    let { media, player } = uiMap
+    let { media, player } = this.uiMap
 
     player.classList.remove('is-waiting')
     var method = media.paused ? 'play' : 'pause'
@@ -103,16 +186,17 @@ const plator = (options = {}) => {
       : player.classList.add('is-playing')
   }
 
-  function showReplay (msg, uiMap) {
-    uiMap.buttonBig.innerHTML = `${icons.get('replay')}<span>${msg}</span>`
+  showReplay (msg) {
+    this.uiMap.buttonBig.innerHTML = `${icons.get('replay')}<span>${msg}</span>`
   }
 
-  function toggleControl (uiMap) {
-    uiMap.player.classList.toggle('hide-control')
-    clearControlTimeout(uiMap.player)
+  toggleControl () {
+    this.uiMap.player.classList.toggle('hide-control')
+    this.clearControlTimeout()
   }
 
-  function clearControlTimeout (player) {
+  clearControlTimeout () {
+    let {player} = this.uiMap
     if (player.control_timeout) {
       clearTimeout(player.control_timeout)
     }
@@ -122,7 +206,7 @@ const plator = (options = {}) => {
     }, 3000)
   }
 
-  function buildControls (player) {
+  buildControls (player) {
     return `
       ${player.media === 'video'
         ? `
@@ -157,10 +241,11 @@ const plator = (options = {}) => {
     `
   }
 
-  function timeUpdate (e, uiMap) {
+  timeUpdate (e) {
+    let {uiMap} = this
     let { media, player } = uiMap
 
-    progressTime(uiMap)
+    this.progressTime()
 
     // Ignore updates while seeking
     if (e && e.type === 'timeupdate' && media.seeking) {
@@ -169,62 +254,65 @@ const plator = (options = {}) => {
 
     player.classList.remove('is-waiting')
 
-    let value = getPercentage(media.currentTime, getDuration(uiMap))
+    let value = this.getPercentage(media.currentTime, this.getDuration())
     if (e.type === 'timeupdate' && uiMap.track) {
       uiMap.track.value = value
     }
-    setProgress(uiMap.played, value)
+    this.setProgress(uiMap.played, value)
   }
 
-  function setProgress (progress, value) {
+  setProgress (progress, value) {
     progress.value = value
   }
 
-  function handleBuffer (uiMap) {
+  handleBuffer () {
+    let {uiMap} = this
     // try
     try {
       let buffer = uiMap.media.buffered.end(0)
-      let value = getPercentage(buffer, getDuration(uiMap))
-      setProgress(uiMap.buffer, value)
+      let value = this.getPercentage(buffer, this.getDuration())
+      this.setProgress(uiMap.buffer, value)
     } catch (e) {}
   }
 
-  function progressTime (uiMap) {
-    uiMap.current.textContent = formatTime(uiMap.media.currentTime, uiMap)
+  progressTime () {
+    this.uiMap.current.textContent = this.formatTime(this.uiMap.media.currentTime)
   }
 
-  function durationChange (uiMap) {
+  durationChange () {
+    let {uiMap} = this
     if (uiMap.player.currentTime) {
       uiMap.media.currentTime = uiMap.player.currentTime
     }
-    let duration = getDuration(uiMap)
-    uiMap.total.textContent = formatTime(duration, uiMap)
-    progressTime(uiMap)
+    let duration = this.getDuration()
+    uiMap.total.textContent = this.formatTime(duration)
+    this.progressTime()
   }
 
-  function inputProcess (e, uiMap) {
-    clearControlTimeout(uiMap.player)
+  inputProcess (e) {
+    let {uiMap} = this
+    this.clearControlTimeout()
 
-    let duration = getDuration(uiMap)
+    let duration = this.getDuration()
     let time = e.target.value / e.target.max * duration
 
     time = time < 0 ? 0 : time > duration ? duration : time
 
-    updateSeekDisplay(time, uiMap)
+    this.updateSeekDisplay(time)
 
     try {
       uiMap.media.currentTime = time.toFixed(4)
     } catch (e) {}
   }
 
-  function updateSeekDisplay (time, uiMap) {
+  updateSeekDisplay (time) {
+    let {uiMap} = this
     // Default to 0
     if (!isNumber(time)) {
       time = 0
     }
 
-    let duration = getDuration(uiMap)
-    let value = getPercentage(time, duration)
+    let value = this.getPercentage(time, this.getDuration())
 
     // Update palyed progress
     if (uiMap.played) {
@@ -238,7 +326,7 @@ const plator = (options = {}) => {
   }
 
   // Get percentage
-  function getPercentage (current, max) {
+  getPercentage (current, max) {
     if (current === 0 || max === 0 || isNaN(current) || isNaN(max)) {
       return 0
     }
@@ -246,7 +334,8 @@ const plator = (options = {}) => {
   }
 
   // Get the duration
-  function getDuration (uiMap) {
+  getDuration () {
+    let {uiMap} = this
     let mediaDuration = 0
 
     // Only if duration available
@@ -257,7 +346,8 @@ const plator = (options = {}) => {
     return mediaDuration
   }
 
-  function onFullScreen (e, uiMap, fullScreen) {
+  onFullScreen (e, fullScreen) {
+    let {uiMap} = this
     if (!fullScreen.isFullScreen()) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('expand')
@@ -267,7 +357,8 @@ const plator = (options = {}) => {
     }
   }
 
-  function selectQuality (url, uiMap) {
+  selectQuality (url) {
+    let {uiMap} = this
     // uiMap
     uiMap.player.currentTime = uiMap.media.currentTime
     uiMap.media.setAttribute('src', url)
@@ -277,161 +368,42 @@ const plator = (options = {}) => {
     }
   }
 
-  function checkLoading (e, uiMap) {
+  checkLoading (e) {
+    let {uiMap} = this
     var loading = e.type === 'waiting'
 
     // Clear timer
     clearTimeout(uiMap.player.loadingTimer)
 
-    uiMap.player.loadingTimer = setTimeout(function () {
+    uiMap.player.loadingTimer = setTimeout(() => {
       _toggleClass(uiMap.player, 'is-waiting', loading)
     }, loading ? 250 : 0)
   }
-
-  function wrap () {
-    nodes.forEach((media, index) => {
-      let player = document.createElement('div')
-      player.classList.add(`${skin}`)
-      media.parentNode.insertBefore(player, media)
-      player.appendChild(media)
-
-      // events
-      // player.events = new Events()
-
-      // hide control timeout
-      player.control_timeout = null
-      player.media = media.nodeName.toLocaleLowerCase()
-      player.classList.add(`${skin}--${player.media}`)
-
-      // get all sources
-      player.sources = null
-      if (player.media === 'video') {
-        player.sources = {}
-        toArray(media.querySelectorAll('source')).forEach((el, i) => {
-          player.sources[el.getAttribute('label')] = el.getAttribute('src')
-          media.removeChild(el)
-        })
-      }
-
-      let html = buildControls(player)
-      player.insertAdjacentHTML('beforeend', html)
-
-      let toggle = player.querySelectorAll(`.${skin}__button--toggle`)
-      let uiMap = {
-        poster: 'poster',
-        track: 'progress--track',
-        buffer: 'progress--buffer',
-        played: 'progress--played',
-        current: 'time--current',
-        total: 'time--total',
-        fullscreen: 'fullscreen',
-        buttonBig: 'button--big',
-        qualityList: 'quality--list select'
-      }
-      Object.keys(uiMap).map(item => {
-        uiMap[item] = player.querySelector(`.${skin}__${uiMap[item]}`)
-      })
-
-      uiMap.player = player
-      uiMap.toggle = toggle
-      uiMap.media = media
-
-      // poster
-      if (player.media === 'video') {
-        player.classList.add('hide-control')
-        media.removeAttribute('controls')
-        media.setAttribute('playsinline', 'true')
-        media.setAttribute('webkit-playsinline', 'true')
-        uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
-          'poster'
-        )})`
-      }
-
-      // events
-
-      // play/pause button action
-      toArray(toggle).forEach(button =>
-        button.addEventListener('click', () => togglePlay(uiMap))
-      )
-
-      // media event bind
-      media.addEventListener(
-        'ended',
-        e => {
-          player.classList.remove('is-playing')
-          showReplay('重播', uiMap)
-        },
-        false
-      )
-      // error handle
-      media.addEventListener(
-        'error',
-        e => {
-          console.log('error', e)
-          player.error = true
-        },
-        false
-      )
-      // Time change on media
-      _onMulti(media, 'timeupdate seeking', e => timeUpdate(e, uiMap))
-      // Display duration
-      _onMulti(media, 'durationchange loadedmetadata', () =>
-        durationChange(uiMap)
-      )
-      // Check for buffer progress
-      _onMulti(media, 'progress playing', () => handleBuffer(uiMap))
-      // Handle play/pause
-      _onMulti(media, 'play pause', () => updateButton(uiMap))
-      // Loading
-      _onMulti(media, 'waiting canplay seeked', e => checkLoading(e, uiMap))
-
-      // process track input
-      uiMap.track.addEventListener('input', e => inputProcess(e, uiMap))
-
-      // events
-      // player.events.mediaEvents.forEach(evt => media.addEventListener(evt, () => player.events.trigger(evt)))
-
-      if (player.media === 'video') {
-        // click toggle control
-        uiMap.poster.addEventListener('click', () => toggleControl(uiMap))
-
-        // click quality switcher
-        uiMap.qualityList &&
-          uiMap.qualityList.addEventListener('change', e =>
-            selectQuality(e.target.value, uiMap)
-          )
-
-        // fullscreen action
-        let fullScreen = new FullScreen(uiMap, {
-          skin: skin
-        })
-        // TODO: fullscreen events - fullscreen & fullscreen_cancel
-        uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(full))
-        // Handle user exiting fullscreen by escaping etc
-        'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange'
-          .split(' ')
-          .forEach(
-            evt =>
-              `on${evt}` in document &&
-              document.addEventListener(evt, e => onFullScreen(e, uiMap, fullScreen))
-          )
-      }
-
-      media.setAttribute(packed, '')
-    })
-  }
-
-  // API
-
-  function setup () {
-    nodes = selectors()
-
-    return wrap()
-  }
-
-  return {
-    setup
-  }
 }
 
-export default plator
+export default function (options = {}) {
+  const type = options.type ? options.type : 'audio'
+  icons = new SvgIcon(options)
+
+  const selectors = () => {
+    return toArray(document.querySelectorAll(type)).filter(
+      node => !node.hasAttribute(`${packed}`)
+    )
+  }
+
+  instances.setup = () => {
+    selectors().forEach(media => {
+      instances.push(new Plator(media, options))
+    })
+    return instances
+  }
+
+  instances.on = (event, callback) => {
+    instances.forEach(instance => {
+      instance.events.on(event, callback)
+    })
+    return instances
+  }
+
+  return instances
+}
