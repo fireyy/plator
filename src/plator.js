@@ -111,7 +111,10 @@ class Plator {
     this.uiMap.track.addEventListener('input', e => this.inputProcess(e))
 
     // events
-    this.events.mediaEvents.forEach(evt => media.addEventListener(evt, () => this.events.trigger(evt)))
+    this.events.mediaEvents.forEach(evt => media.addEventListener(evt, (e) => {
+      e.player = this
+      this.events.trigger(evt, e)
+    }))
 
     if (player.media === 'video') {
       // click toggle control

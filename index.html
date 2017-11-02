@@ -29,8 +29,9 @@
       console.log('fullscreen on')
     }).on('fullscreen_cancel', function () {
       console.log('fullscreen_cancel on')
-    }).on('ended', function () {
-      console.log('video ended')
+    }).on('ended', function (e) {
+      console.log('video ended', e)
+      e.player.uiMap.buttonBig.innerHTML = `<span>111111</span>`
     })
   </script>
 </body>
