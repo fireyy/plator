@@ -48,7 +48,8 @@ class Plator {
       total: 'time--total',
       fullscreen: 'fullscreen',
       buttonBig: 'button--big',
-      qualityList: 'quality--list select'
+      qualityList: 'quality--list select',
+      volume: 'volume'
     }
     Object.keys(this.uiMap).map(item => {
       this.uiMap[item] = player.querySelector(`.${skin}__${this.uiMap[item]}`)
@@ -97,9 +98,7 @@ class Plator {
     // Time change on media
     onMulti(media, 'timeupdate seeking', e => this.timeUpdate(e))
     // Display duration
-    onMulti(media, 'durationchange loadedmetadata', () =>
-      this.durationChange()
-    )
+    onMulti(media, 'durationchange loadedmetadata', () => this.durationChange())
     // Check for buffer progress
     onMulti(media, 'progress playing', () => this.handleBuffer())
     // Handle play/pause
@@ -111,11 +110,13 @@ class Plator {
     this.uiMap.track.addEventListener('input', e => this.inputProcess(e))
 
     // events
-    this.events.mediaEvents.forEach(evt => media.addEventListener(evt, (e) => {
-      this.setPlayState(evt)
-      e.player = this
-      this.events.trigger(evt, e)
-    }))
+    this.events.mediaEvents.forEach(evt =>
+      media.addEventListener(evt, e => {
+        this.setPlayState(evt)
+        e.player = this
+        this.events.trigger(evt, e)
+      })
+    )
 
     if (player.media === 'video') {
       // click toggle control
@@ -132,10 +133,15 @@ class Plator {
         skin: skin
       })
 
-      this.uiMap.fullscreen.addEventListener('click', e => fullScreen.toggle(this.full))
+      this.uiMap.fullscreen.addEventListener('click', e =>
+        fullScreen.toggle(this.full)
+      )
       this.events.on('fullscreen', () => this.onFullScreen(fullScreen))
       this.events.on('fullscreen_cancel', () => this.onFullScreen(fullScreen))
     }
+
+    // volume toggle
+    this.uiMap.volume.addEventListener('click', () => this.toggleMuted())
 
     media.setAttribute(packed, '')
   }
@@ -159,7 +165,7 @@ class Plator {
   }
 
   updateButton () {
-    let {uiMap} = this
+    let { uiMap } = this
     this.clearControlTimeout()
     var icon = uiMap.media.paused ? icons.get('play') : icons.get('pause')
     uiMap.player.classList[uiMap.media.paused ? 'remove' : 'add']('is-playing')
@@ -195,7 +201,7 @@ class Plator {
   }
 
   clearControlTimeout () {
-    let {player} = this.uiMap
+    let { player } = this.uiMap
     if (player.control_timeout) {
       clearTimeout(player.control_timeout)
     }
@@ -210,11 +216,15 @@ class Plator {
       ${player.media === 'video'
         ? `
           <div class="${skin}__poster"></div>
-          <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${icons.get('play')}</button>
+          <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${icons.get(
+            'play'
+          )}</button>
         `
         : ''}
       <div class="${skin}__controls">
-        <button class="${skin}__button ${skin}__button--toggle" title="Toggle media">${icons.get('play')}</button>
+        <button class="${skin}__button ${skin}__button--toggle" title="Toggle media">${icons.get(
+      'play'
+    )}</button>
         <span class="${skin}__time--current">00:00</span>
         <div class="${skin}__progress">
           <input class="${skin}__progress--track" type="range" min="0" max="100" step="0.1" value="0">
@@ -233,15 +243,20 @@ class Plator {
         </span>
         `
           : ''}
+        <button class="${skin}__button ${skin}__volume" title="Volume">${icons.get(
+            'volume'
+          )}</button>
         ${player.media === 'video'
-          ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${icons.get('expand')}</button>`
+          ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${icons.get(
+              'expand'
+            )}</button>`
           : ''}
       </div>
     `
   }
 
   timeUpdate (e) {
-    let {uiMap} = this
+    let { uiMap } = this
     let { media, player } = uiMap
 
     this.progressTime()
@@ -265,7 +280,7 @@ class Plator {
   }
 
   handleBuffer () {
-    let {uiMap} = this
+    let { uiMap } = this
     // try
     try {
       let buffer = uiMap.media.buffered.end(0)
@@ -275,11 +290,13 @@ class Plator {
   }
 
   progressTime () {
-    this.uiMap.current.textContent = this.formatTime(this.uiMap.media.currentTime)
+    this.uiMap.current.textContent = this.formatTime(
+      this.uiMap.media.currentTime
+    )
   }
 
   durationChange () {
-    let {uiMap} = this
+    let { uiMap } = this
     if (uiMap.player.currentTime) {
       uiMap.media.currentTime = uiMap.player.currentTime
     }
@@ -289,7 +306,7 @@ class Plator {
   }
 
   inputProcess (e) {
-    let {uiMap} = this
+    let { uiMap } = this
     this.clearControlTimeout()
 
     let duration = this.getDuration()
@@ -305,7 +322,7 @@ class Plator {
   }
 
   updateSeekDisplay (time) {
-    let {uiMap} = this
+    let { uiMap } = this
     // Default to 0
     if (!isNumber(time)) {
       time = 0
@@ -334,7 +351,7 @@ class Plator {
 
   // Get the duration
   getDuration () {
-    let {uiMap} = this
+    let { uiMap } = this
     let mediaDuration = 0
 
     // Only if duration available
@@ -346,7 +363,7 @@ class Plator {
   }
 
   onFullScreen (fullScreen) {
-    let {uiMap} = this
+    let { uiMap } = this
     if (!fullScreen.isFullScreen(this.full)) {
       uiMap.player.classList.remove(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('expand')
@@ -357,7 +374,7 @@ class Plator {
   }
 
   selectQuality (url) {
-    let {uiMap} = this
+    let { uiMap } = this
     // uiMap
     uiMap.player.currentTime = uiMap.media.currentTime
     uiMap.media.setAttribute('src', url)
@@ -368,7 +385,7 @@ class Plator {
   }
 
   checkLoading (e) {
-    let {uiMap} = this
+    let { uiMap } = this
     var loading = e.type === 'waiting'
 
     // Clear timer
@@ -381,6 +398,12 @@ class Plator {
 
   setPlayState (state) {
     this.uiMap.player.setAttribute('data-play-state', state)
+  }
+
+  toggleMuted () {
+    let { media, volume } = this.uiMap
+    media.muted = !media.muted
+    volume.innerHTML = icons.get(media.muted ? 'muted' : 'volume')
   }
 }
 
