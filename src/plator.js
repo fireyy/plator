@@ -177,6 +177,7 @@ class Plator {
     player.classList.remove('is-waiting')
     var method = media.paused ? 'play' : 'pause'
     if (method in media) {
+      // FIXME: The element has no supported sources.
       media[method]()
     }
     media.paused
@@ -393,11 +394,11 @@ export default function (options = {}) {
     )
   }
 
-  instances.setup = (plugins = {}) => {
+  instances.setup = (plugins = []) => {
     selectors().forEach(media => {
       let instance = new Plator(media, options)
       instances.push(instance)
-      Object.keys(plugins).forEach(key => plugins[key](instance))
+      plugins.forEach(plugin => plugin(instance))
     })
     return instances
   }

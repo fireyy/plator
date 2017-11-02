@@ -25,7 +25,16 @@
     let plator = Plator({
       type: 'video, audio'
     })
-    plator.setup().on('fullscreen', function () {
+    plator.setup({
+        recommend: (player) => {
+          console.log('plugin')
+          player.events.on('ended', (e) => {
+            console.log('ended plugin')
+            // video ended togglePlay
+            e.player.uiMap.buttonBig.innerHTML = '2222'
+          })
+        }
+      }).on('fullscreen', function () {
       console.log('fullscreen on')
     }).on('fullscreen_cancel', function () {
       console.log('fullscreen_cancel on')
