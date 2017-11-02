@@ -112,6 +112,7 @@ class Plator {
 
     // events
     this.events.mediaEvents.forEach(evt => media.addEventListener(evt, (e) => {
+      this.setPlayState(evt)
       e.player = this
       this.events.trigger(evt, e)
     }))
@@ -169,7 +170,7 @@ class Plator {
     }
   }
 
-  togglePlay (uiMap) {
+  togglePlay () {
     // FIXME: replay need restart(CurrentTime = 0)
     let { media, player } = this.uiMap
 
@@ -376,6 +377,10 @@ class Plator {
       toggleClass(uiMap.player, 'is-waiting', loading)
     }, loading ? 250 : 0)
   }
+
+  setPlayState (state) {
+    this.uiMap.player.setAttribute('data-play-state', state)
+  }
 }
 
 export default function (options = {}) {
@@ -388,9 +393,11 @@ export default function (options = {}) {
     )
   }
 
-  instances.setup = () => {
+  instances.setup = (plugins = {}) => {
     selectors().forEach(media => {
-      instances.push(new Plator(media, options))
+      let instance = new Plator(media, options)
+      instances.push(instance)
+      Object.keys(plugins).forEach(key => plugins[key](instance))
     })
     return instances
   }
