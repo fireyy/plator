@@ -1,6 +1,7 @@
 class FullScreen {
-  constructor (uiMap, options = {}) {
-    this.uiMap = uiMap
+  constructor (plator, options = {}) {
+    this.uiMap = plator.uiMap
+    this.events = plator.events
     this.settings = options
     this.supportsFullScreen = false
     let browserPrefixes = 'webkit moz ms'.split(' ')
@@ -64,6 +65,7 @@ class FullScreen {
         break
       case 'web':
         this.uiMap.player.classList.add(`${this.settings.skin}__fullscreen`)
+        this.events.trigger('fullscreen')
         break
     }
   }
@@ -87,6 +89,7 @@ class FullScreen {
         this.uiMap.player.classList.remove(
           `${this.settings.skin}__fullscreen`
         )
+        this.events.trigger('fullscreen_cancel')
         break
     }
   }

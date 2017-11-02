@@ -25,7 +25,11 @@
     let plator = Plator({
       type: 'video, audio'
     })
-    plator.setup()
+    plator.setup().on('fullscreen', function () {
+      console.log('fullscreen on')
+    }).on('fullscreen_cancel', function () {
+      console.log('fullscreen_cancel on')
+    })
   </script>
 </body>
 
