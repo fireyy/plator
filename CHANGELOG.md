@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/fireyy/plator/compare/v0.6.1...v0.7.0) (2017-11-06)
+
+
+### Bug Fixes
+
+* loading ([8177f15](https://github.com/fireyy/plator/commit/8177f15))
+* media -> mediaType ([a3e552b](https://github.com/fireyy/plator/commit/a3e552b))
+* type default to video ([16d172f](https://github.com/fireyy/plator/commit/16d172f))
+* volume icon ([7f09de0](https://github.com/fireyy/plator/commit/7f09de0))
+
+
+### Features
+
+* add volume muted ([d520397](https://github.com/fireyy/plator/commit/d520397))
+* audio thumb plugin demo ([9bb1cb1](https://github.com/fireyy/plator/commit/9bb1cb1))
+
+
+
 <a name="0.6.1"></a>
 ## [0.6.1](https://github.com/fireyy/plator/compare/v0.6.0...v0.6.1) (2017-11-02)
 
