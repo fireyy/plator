@@ -40,18 +40,31 @@
     height: 56px;
     overflow: hidden;
   }
-  .audio-thumb-plugin img {
+  .audio-thumb-plugin .pp_audio_thumb {
     width: 56px;
+    height: 56px !important;
     float: left;
     margin-right: 10px;
   }
-  .audio-thumb-plugin span {
+  .audio-thumb-plugin .pp_audio_content {
+    overflow: hidden;
+    min-height: 56px;
+  }
+  .audio-thumb-plugin .pp_audio_content span,
+  .audio-thumb-plugin .pp_audio_content cite {
+    display: block;
+    width: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
+  .audio-thumb-plugin .pp_audio_content span {
     font-size: 13px;
     color: #000;
-    display: block;
     padding: 9px 0 3px;
   }
-  .audio-thumb-plugin cite {
+  .audio-thumb-plugin .pp_audio_content cite {
     font-size: 11px;
     color: #8a8a8a;
     font-style: normal;
@@ -80,13 +93,13 @@
       let rec = document.createElement('div')
       rec.classList.add('audio-thumb-plugin')
       player.uiMap.player.appendChild(rec)
-      let data = ['music-name', 'singer', 'music-thumb'].map(d => {
-        return player.uiMap.media.getAttribute(`data-${d}`)
-      })
+      let data = ['music-name', 'singer', 'music-thumb'].map(d => player.uiMap.media.getAttribute(`data-${d}`) || '')
       rec.innerHTML = `
-        <img src="${data[2] || ''}">
-        <span>${data[0] || 'abc'}</span>
-        <cite>${data[1] || 'def'}</cite>
+        <img class="pp_audio_thumb" src="${data[2]}">
+        <div class="pp_audio_content">
+          <span>${data[0]}</span>
+          <cite>${data[1]}</cite>
+        </div>
       `
     }
   }
