@@ -238,7 +238,7 @@ class Plator {
           <select>
           ${Object.keys(player.sources).map(
             s => `<option value="${player.sources[s]}">${s}</option>`
-          )}
+          ).join('\n')}
           </select>
         </span>
         `
