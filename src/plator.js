@@ -408,7 +408,7 @@ class Plator {
 }
 
 export default function (options = {}) {
-  const type = options.type ? options.type : 'audio'
+  const type = options.type ? options.type : 'video'
   icons = new SvgIcon(options)
 
   const selectors = () => {

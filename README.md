@@ -63,7 +63,7 @@ Plator's API is organized as follows:
 
 Plator will account for the following properties in options:
 
-  * `type` The media type to pack, `video`/`audio` or `video, audio`, default to `audio`.
+  * `type` The media type to pack, `video`/`audio` or `video, audio`, default to `video`.
   * `icons` Customize UI icons use svg.
 
       ```js
