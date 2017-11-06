@@ -416,7 +416,7 @@ export default function (options = {}) {
       node => !node.hasAttribute(`${packed}`)
     )
   }
-
+  // TODO: make sure only one instance playing
   instances.setup = (plugins = []) => {
     selectors().forEach(media => {
       let instance = new Plator(media, options)
