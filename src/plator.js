@@ -22,12 +22,12 @@ class Plator {
 
     // hide control timeout
     player.control_timeout = null
-    player.media = media.nodeName.toLocaleLowerCase()
-    player.classList.add(`${skin}--${player.media}`)
+    this.mediaType = player.mediaType = media.nodeName.toLocaleLowerCase()
+    player.classList.add(`${skin}--${this.mediaType}`)
 
     // get all sources
     player.sources = null
-    if (player.media === 'video') {
+    if (this.mediaType === 'video') {
       player.sources = {}
       toArray(media.querySelectorAll('source')).forEach((el, i) => {
         player.sources[el.getAttribute('label')] = el.getAttribute('src')
@@ -60,7 +60,7 @@ class Plator {
     this.uiMap.media = media
 
     // poster
-    if (player.media === 'video') {
+    if (this.mediaType === 'video') {
       player.classList.add('hide-control')
       media.removeAttribute('controls')
       media.setAttribute('playsinline', 'true')
@@ -118,7 +118,7 @@ class Plator {
       })
     )
 
-    if (player.media === 'video') {
+    if (this.mediaType === 'video') {
       // click toggle control
       this.uiMap.poster.addEventListener('click', () => this.toggleControl())
 
@@ -213,7 +213,7 @@ class Plator {
 
   buildControls (player) {
     return `
-      ${player.media === 'video'
+      ${player.mediaType === 'video'
         ? `
           <div class="${skin}__poster"></div>
           <button class="${skin}__button--big ${skin}__button--toggle" title="Toggle Play">${icons.get(
@@ -246,7 +246,7 @@ class Plator {
         <button class="${skin}__button ${skin}__volume" title="Volume">${icons.get(
             'volume'
           )}</button>
-        ${player.media === 'video'
+        ${player.mediaType === 'video'
           ? `<button class="${skin}__button ${skin}__fullscreen" title="Full Screen">${icons.get(
               'expand'
             )}</button>`
