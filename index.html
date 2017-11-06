@@ -7,6 +7,56 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Plator.js example</title>
   <link rel="stylesheet" href="../dist/plator.css">
+  <style>
+  .plator_player_audio_thumb_plugin {
+    border-radius: 0;
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+    height: 56px;
+  }
+  .plator_player_audio_thumb_plugin .plator__player__time--current,
+  .plator_player_audio_thumb_plugin .plator__player__progress,
+  .plator_player_audio_thumb_plugin .plator__player__time--total,
+  .plator_player_audio_thumb_plugin .plator__player__volume {
+    display: none;
+  }
+  .plator_player_audio_thumb_plugin .plator__player__controls {
+    width: 56px;
+    padding: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    border-radius: 0;
+  }
+  .plator_player_audio_thumb_plugin .plator__player__controls .plator__player__button {
+    border: 1px solid #fff;
+    border-radius: 30px;
+    width: 30px;
+    height: 30px;
+  }
+  .plator_player_audio_thumb_plugin .plator__player__controls .plator__player__button svg {
+    font-size: 16px;
+  }
+  .audio-thumb-plugin {
+    height: 56px;
+    overflow: hidden;
+  }
+  .audio-thumb-plugin img {
+    width: 56px;
+    float: left;
+    margin-right: 10px;
+  }
+  .audio-thumb-plugin span {
+    font-size: 13px;
+    color: #000;
+    display: block;
+    padding: 9px 0 3px;
+  }
+  .audio-thumb-plugin cite {
+    font-size: 11px;
+    color: #8a8a8a;
+    font-style: normal;
+  }
+  </style>
 </head>
 
 <body>
@@ -20,21 +70,34 @@
   </video>
   <h2>Audio</h2>
   <audio src="http://devtest.qiniudn.com/secret base~.mp3" preload="none"></audio>
+  <audio src="http://ws.stream.qqmusic.qq.com/C100002KHRpD2Q0zOk.m4a?fromtag=46" data-music-name="岁月的歌" data-singer="周治平&nbsp;-&nbsp;岁月的歌" data-play-length="259000" data-music-thumb="http://img1.ffan.com/orig/T19xDvBCJ_1RCvBVdK"></audio>
+  <audio src="http://ws.stream.qqmusic.qq.com/C100003NtIFC1BvaCB.m4a?fromtag=46" data-music-name="跟往事干杯" data-singer="姜育恒&nbsp;-&nbsp;往事回味精选Ⅰ" data-play-length="349000" data-music-thumb="http://img1.ffan.com/orig/T1jbJvBX_X1RCvBVdK"></audio>
   <script src="../dist/plator.js"></script>
+  <script>
+  function audioThumbPlugin (player) {
+    if (player.mediaType === 'audio') {
+      player.uiMap.player.classList.add('plator_player_audio_thumb_plugin')
+      let rec = document.createElement('div')
+      rec.classList.add('audio-thumb-plugin')
+      player.uiMap.player.appendChild(rec)
+      let data = ['music-name', 'singer', 'music-thumb'].map(d => {
+        return player.uiMap.media.getAttribute(`data-${d}`)
+      })
+      rec.innerHTML = `
+        <img src="${data[2] || ''}">
+        <span>${data[0] || 'abc'}</span>
+        <cite>${data[1] || 'def'}</cite>
+      `
+    }
+  }
+  </script>
   <script>
     let plator = Plator({
       type: 'video, audio'
     })
     plator.setup([
-        (player) => {
-          console.log('plugin')
-          player.events.on('ended', (e) => {
-            console.log('ended plugin')
-            // video ended togglePlay
-            // e.player.uiMap.buttonBig.innerHTML = '2222'
-          })
-        }
-      ]).on('fullscreen', function () {
+      audioThumbPlugin
+    ]).on('fullscreen', function () {
       console.log('fullscreen on')
     }).on('fullscreen_cancel', function () {
       console.log('fullscreen_cancel on')
