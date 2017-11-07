@@ -21,7 +21,7 @@ class Plator {
     this.events = new Events()
 
     // hide control timeout
-    player.control_timeout = null
+    this.timer = {}
     this.mediaType = player.mediaType = media.nodeName.toLocaleLowerCase()
     player.classList.add(`${skin}--${this.mediaType}`)
 
@@ -201,13 +201,12 @@ class Plator {
   }
 
   clearControlTimeout () {
-    let { player } = this.uiMap
-    if (player.control_timeout) {
-      clearTimeout(player.control_timeout)
+    if (this.timer.control) {
+      clearTimeout(this.timer.control)
     }
 
-    player.control_timeout = setTimeout(() => {
-      player.classList.add('hide-control')
+    this.timer.control = setTimeout(() => {
+      this.uiMap.player.classList.add('hide-control')
     }, 3000)
   }
 
@@ -389,9 +388,9 @@ class Plator {
     var loading = e.type === 'waiting'
 
     // Clear timer
-    clearTimeout(uiMap.player.loadingTimer)
+    clearTimeout(this.timer.loading)
 
-    uiMap.player.loadingTimer = setTimeout(() => {
+    this.timer.loading = setTimeout(() => {
       toggleClass(uiMap.player, 'is-waiting', loading)
     }, loading ? 250 : 0)
   }
