@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.1"></a>
+## [0.7.1](https://github.com/fireyy/plator/compare/v0.7.0...v0.7.1) (2017-11-08)
+
+
+### Bug Fixes
+
+* button touch-action ([3df9061](https://github.com/fireyy/plator/commit/3df9061))
+* clean css ([4f427d0](https://github.com/fireyy/plator/commit/4f427d0))
+* demo style ([cdb8ca5](https://github.com/fireyy/plator/commit/cdb8ca5))
+* exclude not support ([5057930](https://github.com/fireyy/plator/commit/5057930))
+* increase range thumb size ([9fd2b8e](https://github.com/fireyy/plator/commit/9fd2b8e))
+* template join ([c74291b](https://github.com/fireyy/plator/commit/c74291b))
+* use timer ([efca1b2](https://github.com/fireyy/plator/commit/efca1b2))
+* X5 Browser inline play ([2cd9eaa](https://github.com/fireyy/plator/commit/2cd9eaa))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://github.com/fireyy/plator/compare/v0.6.1...v0.7.0) (2017-11-06)
 
