@@ -89,6 +89,8 @@
   <script>
   function audioThumbPlugin (player) {
     if (player.mediaType === 'audio') {
+      let music_name = player.uiMap.media.getAttribute(`data-music-name`)
+      if (!music_name) return
       player.uiMap.player.classList.add('plator_player_audio_thumb_plugin')
       let rec = document.createElement('div')
       rec.classList.add('audio-thumb-plugin')
