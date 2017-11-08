@@ -63,8 +63,11 @@ class Plator {
     if (this.mediaType === 'video') {
       player.classList.add('hide-control')
       media.removeAttribute('controls')
+      // webkit video inline play
       media.setAttribute('playsinline', 'true')
       media.setAttribute('webkit-playsinline', 'true')
+      // Tecent X5 Browser play inline (Android wechat)
+      media.setAttribute('x5-video-player-type', 'h5')
       this.uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
         'poster'
       )})`
