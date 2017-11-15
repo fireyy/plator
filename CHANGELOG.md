@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.2"></a>
+## [0.7.2](https://github.com/fireyy/plator/compare/v0.7.1...v0.7.2) (2017-11-15)
+
+
+### Bug Fixes
+
+* remove ui before setup ([c5ce2f1](https://github.com/fireyy/plator/commit/c5ce2f1))
+
+
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://github.com/fireyy/plator/compare/v0.7.0...v0.7.1) (2017-11-08)
 
