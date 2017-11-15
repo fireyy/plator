@@ -13,19 +13,11 @@
   cursor: pointer;
   margin-bottom: 20px;
   font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
-  &:-webkit-full-screen {
-    width: 100%;
-    height: 100%;
-    background: #000;
-    position: fixed;
-    z-index: 100000;
-    left: 0;
-    top: 0;
-  }
   & video {
     width: 100%;
     height: auto;
     vertical-align: middle;
+    &::-webkit-media-controls-panel,
     &::-webkit-media-controls {
       display: none !important;
     }

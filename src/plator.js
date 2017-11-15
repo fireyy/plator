@@ -12,6 +12,13 @@ let icons = null
 class Plator {
   constructor (media, options = {}) {
     this.full = options.full || 'web'
+
+    if (media.parentNode.classList.contains(`${skin}`)) {
+      let parent = media.parentNode
+      parent.parentNode.insertBefore(media, parent)
+      parent.parentNode.removeChild(parent)
+    }
+
     let player = document.createElement('div')
     player.classList.add(`${skin}`)
     media.parentNode.insertBefore(player, media)
@@ -59,7 +66,6 @@ class Plator {
     this.uiMap.toggle = toggle
     this.uiMap.media = media
 
-    // poster
     if (this.mediaType === 'video') {
       player.classList.add('hide-control')
       media.removeAttribute('controls')
@@ -68,6 +74,7 @@ class Plator {
       media.setAttribute('webkit-playsinline', 'true')
       // Tecent X5 Browser play inline (Android wechat)
       media.setAttribute('x5-video-player-type', 'h5')
+      // poster
       this.uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
         'poster'
       )})`
@@ -146,7 +153,7 @@ class Plator {
     // volume toggle
     this.uiMap.volume.addEventListener('click', () => this.toggleMuted())
 
-    media.setAttribute(packed, '')
+    // media.setAttribute(packed, '')
   }
   formatTime (time) {
     if (isNaN(time)) {

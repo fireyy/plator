@@ -73,6 +73,7 @@
 </head>
 
 <body>
+  <button id="reset">Reset</button>
   <h2>Video</h2>
   <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true"></video>
   <h2>Video with quality switcher</h2>
@@ -107,18 +108,24 @@
   }
   </script>
   <script>
-    let plator = Plator({
-      type: 'video, audio'
-    })
-    plator.setup([
-      audioThumbPlugin
-    ]).on('fullscreen', function () {
-      console.log('fullscreen on')
-    }).on('fullscreen_cancel', function () {
-      console.log('fullscreen_cancel on')
-    }).on('ended', function (e) {
-      console.log('video ended', e)
-      // e.player.uiMap.buttonBig.innerHTML = `<span>111111</span>`
+    function init() {
+      let plator = Plator({
+        type: 'video, audio'
+      })
+      plator.setup([
+        audioThumbPlugin
+      ]).on('fullscreen', function () {
+        console.log('fullscreen on')
+      }).on('fullscreen_cancel', function () {
+        console.log('fullscreen_cancel on')
+      }).on('ended', function (e) {
+        console.log('video ended', e)
+        // e.player.uiMap.buttonBig.innerHTML = `<span>111111</span>`
+      })
+    }
+    init()
+    document.querySelector('#reset').addEventListener('click', () => {
+      init()
     })
   </script>
 </body>
