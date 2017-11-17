@@ -4,7 +4,7 @@
   "main": "dist/plator.js",
   "module": "dist/plator.module.js",
   "jsnext:main": "dist/plator.module.js",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "license": "MIT",
   "repository": "fireyy/plator",
   "author": {

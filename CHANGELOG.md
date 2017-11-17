@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.3"></a>
+## [0.7.3](https://github.com/fireyy/plator/compare/v0.7.2...v0.7.3) (2017-11-17)
+
+
+### Bug Fixes
+
+* change range thumb size ([81f7fdc](https://github.com/fireyy/plator/commit/81f7fdc))
+* player style ([7336ab2](https://github.com/fireyy/plator/commit/7336ab2))
+
+
+
 <a name="0.7.2"></a>
 ## [0.7.2](https://github.com/fireyy/plator/compare/v0.7.1...v0.7.2) (2017-11-15)
 
