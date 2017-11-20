@@ -32,16 +32,6 @@ class Plator {
     this.mediaType = player.mediaType = media.nodeName.toLocaleLowerCase()
     player.classList.add(`${skin}--${this.mediaType}`)
 
-    // get all sources
-    player.sources = null
-    if (this.mediaType === 'video') {
-      player.sources = {}
-      toArray(media.querySelectorAll('source')).forEach((el, i) => {
-        player.sources[el.getAttribute('label')] = el.getAttribute('src')
-        media.removeChild(el)
-      })
-    }
-
     let html = this.buildControls(player)
     player.insertAdjacentHTML('beforeend', html)
 
@@ -55,8 +45,8 @@ class Plator {
       total: 'time--total',
       fullscreen: 'fullscreen',
       buttonBig: 'button--big',
-      qualityList: 'quality--list select',
-      volume: 'volume'
+      volume: 'volume',
+      controls: 'controls'
     }
     Object.keys(this.uiMap).map(item => {
       this.uiMap[item] = player.querySelector(`.${skin}__${this.uiMap[item]}`)
@@ -133,12 +123,6 @@ class Plator {
     if (this.mediaType === 'video') {
       // click toggle control
       this.uiMap.poster.addEventListener('click', () => this.toggleControl())
-
-      // click quality switcher
-      this.uiMap.qualityList &&
-        this.uiMap.qualityList.addEventListener('change', e =>
-          this.selectQuality(e.target.value)
-        )
 
       // fullscreen action
       let fullScreen = new FullScreen(this, {
@@ -243,17 +227,6 @@ class Plator {
           <progress max="100" value="0" class="${skin}__progress--buffer"></progress>
         </div>
         <span class="${skin}__time--total">00:00</span>
-        ${player.sources && Object.keys(player.sources).length > 0
-          ? `
-        <span class="${skin}__quality--list">
-          <select>
-          ${Object.keys(player.sources).map(
-            s => `<option value="${player.sources[s]}">${s}</option>`
-          ).join('\n')}
-          </select>
-        </span>
-        `
-          : ''}
         <button class="${skin}__button ${skin}__volume" title="Volume">${icons.get(
             'volume'
           )}</button>
@@ -381,17 +354,6 @@ class Plator {
     } else {
       uiMap.player.classList.add(`${skin}__fullscreen`)
       uiMap.fullscreen.innerHTML = icons.get('compress')
-    }
-  }
-
-  selectQuality (url) {
-    let { uiMap } = this
-    // uiMap
-    uiMap.player.currentTime = uiMap.media.currentTime
-    uiMap.media.setAttribute('src', url)
-    // uiMap.media.load()
-    if ('play' in uiMap.media) {
-      uiMap.media.play()
     }
   }
 

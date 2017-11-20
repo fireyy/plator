@@ -8,66 +8,21 @@
   <title>Plator.js example</title>
   <link rel="stylesheet" href="../dist/plator.css">
   <style>
-  .plator_player_audio_thumb_plugin {
-    border-radius: 0;
-    border: 1px solid #e0e0e0;
-    box-shadow: none;
-    height: 56px;
+  .plator__player__quality--list {
+    font-size: 10px;
+    line-height: 22px;
+    margin-right: 5px;
   }
-  .plator_player_audio_thumb_plugin .plator__player__time--current,
-  .plator_player_audio_thumb_plugin .plator__player__progress,
-  .plator_player_audio_thumb_plugin .plator__player__time--total,
-  .plator_player_audio_thumb_plugin .plator__player__volume {
-    display: none;
-  }
-  .plator_player_audio_thumb_plugin .plator__player__controls {
-    width: 56px;
-    padding: 0;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    border-radius: 0;
-  }
-  .plator_player_audio_thumb_plugin .plator__player__controls .plator__player__button {
+  .plator__player__quality--list select {
+    font-size: 8px;
+    padding: 0 2px;
+    line-height: 10px;
     border: 1px solid #fff;
-    border-radius: 30px;
-    width: 30px;
-    height: 30px;
-  }
-  .plator_player_audio_thumb_plugin .plator__player__controls .plator__player__button svg {
-    font-size: 16px;
-  }
-  .audio-thumb-plugin {
-    height: 56px;
-    overflow: hidden;
-  }
-  .audio-thumb-plugin .pp_audio_thumb {
-    width: 56px;
-    height: 56px !important;
-    float: left;
-    margin-right: 10px;
-  }
-  .audio-thumb-plugin .pp_audio_content {
-    overflow: hidden;
-    min-height: 56px;
-  }
-  .audio-thumb-plugin .pp_audio_content span,
-  .audio-thumb-plugin .pp_audio_content cite {
-    display: block;
-    width: auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    word-wrap: normal;
-  }
-  .audio-thumb-plugin .pp_audio_content span {
-    font-size: 13px;
-    color: #000;
-    padding: 9px 0 3px;
-  }
-  .audio-thumb-plugin .pp_audio_content cite {
-    font-size: 11px;
-    color: #8a8a8a;
-    font-style: normal;
+    border-radius: 2px;
+    color: #fff;
+    outline: none;
+    -webkit-appearance: none;
+    background: transparent;
   }
   </style>
 </head>
@@ -78,9 +33,9 @@
   <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true"></video>
   <h2>Video with quality switcher</h2>
   <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true">
-    <source label="标清" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" type='video/mp4'>
-    <source label="高清" src="http://devtest.qiniudn.com/若能绽放光芒.m3u8" type='application/x-mpegURL'>
-    <source label="超清" src="http://devtest.qiniudn.com/若能绽放光芒.m3u8" type='application/x-mpegURL'>
+    <source data-res="标清" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" type='video/mp4'>
+    <source data-res="高清" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" type='application/x-mpegURL'>
+    <source data-res="超清" src="http://devtest.qiniudn.com/若能绽放光芒.m3u8" type='application/x-mpegURL'>
   </video>
   <h2>Audio</h2>
   <audio src="http://devtest.qiniudn.com/secret base~.mp3" preload="none"></audio>
@@ -88,22 +43,41 @@
   <audio src="http://ws.stream.qqmusic.qq.com/C100003NtIFC1BvaCB.m4a?fromtag=46" data-music-name="跟往事干杯" data-singer="姜育恒&nbsp;-&nbsp;往事回味精选Ⅰ" data-play-length="349000" data-music-thumb="http://img1.ffan.com/orig/T1jbJvBX_X1RCvBVdK"></audio>
   <script src="../dist/plator.js"></script>
   <script>
-  function audioThumbPlugin (player) {
-    if (player.mediaType === 'audio') {
-      let music_name = player.uiMap.media.getAttribute(`data-music-name`)
-      if (!music_name) return
-      player.uiMap.player.classList.add('plator_player_audio_thumb_plugin')
-      let rec = document.createElement('div')
-      rec.classList.add('audio-thumb-plugin')
-      player.uiMap.player.appendChild(rec)
-      let data = ['music-name', 'singer', 'music-thumb'].map(d => player.uiMap.media.getAttribute(`data-${d}`) || '')
-      rec.innerHTML = `
-        <img class="pp_audio_thumb" src="${data[2]}">
-        <div class="pp_audio_content">
-          <span>${data[0]}</span>
-          <cite>${data[1]}</cite>
-        </div>
-      `
+  function qualitySelectorPlugin (player) {
+    if (player.mediaType === 'video') {
+      let { uiMap } = player
+      // get all sources
+      let sources = []
+      Array.prototype.slice.call(uiMap.media.querySelectorAll('source')).forEach((el, i) => {
+        if (el.getAttribute('data-res')) {
+          sources.push({
+            title: el.getAttribute('data-res'),
+            src: el.getAttribute('src')
+          })
+          uiMap.media.removeChild(el)
+        }
+      })
+      if (sources && sources.length > 0) {
+        var rec = document.createElement('span')
+        rec.classList.add('plator__player__quality--list')
+        uiMap.controls.insertBefore(rec, uiMap.volume)
+        rec.innerHTML = `
+          <select>
+          ${sources.map(
+            s => `<option value="${s['src']}">${s['title']}</option>`
+          ).join('\n')}
+          </select>
+        `
+        rec.addEventListener('change', (e) => {
+          let url = e.target.value
+          uiMap.player.currentTime = uiMap.media.currentTime
+          uiMap.media.setAttribute('src', url)
+          // uiMap.media.load()
+          if ('play' in uiMap.media) {
+            uiMap.media.play()
+          }
+        })
+      }
     }
   }
   </script>
@@ -113,7 +87,7 @@
         type: 'video, audio'
       })
       plator.setup([
-        audioThumbPlugin
+        qualitySelectorPlugin
       ]).on('fullscreen', function () {
         console.log('fullscreen on')
       }).on('fullscreen_cancel', function () {
