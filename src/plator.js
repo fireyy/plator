@@ -73,7 +73,9 @@ class Plator {
       media.setAttribute('playsinline', 'true')
       media.setAttribute('webkit-playsinline', 'true')
       // Tecent X5 Browser play inline (Android wechat)
-      media.setAttribute('x5-video-player-type', 'h5')
+      media.setAttribute('x5-video-player-type', 'h5') // h5 palyer for Tecent X5
+      media.setAttribute('x5-video-player-fullscreen', 'true') // prevent landscape for Tecent X5
+      media.setAttribute('x5-video-orientation', 'portraint') // default portraint for Tecent X5
       // poster
       this.uiMap.poster.style.backgroundImage = `url(${media.getAttribute(
         'poster'
