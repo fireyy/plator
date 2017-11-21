@@ -32,11 +32,7 @@
   <h2>Video</h2>
   <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true"></video>
   <h2>Video with quality switcher</h2>
-  <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true">
-    <source data-res="标清" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" type='video/mp4'>
-    <source data-res="高清" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" type='application/x-mpegURL'>
-    <source data-res="超清" src="http://devtest.qiniudn.com/若能绽放光芒.m3u8" type='application/x-mpegURL'>
-  </video>
+  <video poster="http://devtest.qiniudn.com/若能绽放光芒.png" src="http://devtest.qiniudn.com/若能绽放光芒.mp4" preload="none" width="100%" height="100%" controls="controls" playsinline="true" webkit-playsinline="true" data-quality-list='[{"title":"标清","src":"http://devtest.qiniudn.com/若能绽放光芒.mp4"},{"title":"高清","src":"http://devtest.qiniudn.com/若能绽放光芒.mp4"},{"title":"超清","src":"http://devtest.qiniudn.com/若能绽放光芒.m3u8"}]'></video>
   <h2>Audio</h2>
   <audio src="http://devtest.qiniudn.com/secret base~.mp3" preload="none"></audio>
   <audio src="http://ws.stream.qqmusic.qq.com/C100002KHRpD2Q0zOk.m4a?fromtag=46" data-music-name="岁月的歌" data-singer="周治平&nbsp;-&nbsp;岁月的歌" data-play-length="259000" data-music-thumb="http://img1.ffan.com/orig/T19xDvBCJ_1RCvBVdK"></audio>
@@ -44,40 +40,37 @@
   <script src="../dist/plator.js"></script>
   <script>
   function qualitySelectorPlugin (player) {
-    if (player.mediaType === 'video') {
-      let { uiMap } = player
-      // get all sources
-      let sources = []
-      Array.prototype.slice.call(uiMap.media.querySelectorAll('source')).forEach((el, i) => {
-        if (el.getAttribute('data-res')) {
-          sources.push({
-            title: el.getAttribute('data-res'),
-            src: el.getAttribute('src')
-          })
-          uiMap.media.removeChild(el)
+    let { uiMap } = player
+    // get all sources
+    let sources = uiMap.media.getAttribute('data-quality-list')
+    if (sources) {
+      try {
+        sources = JSON.parse(sources)
+      } catch (e) {
+        console.error(e)
+        sources = []
+      }
+      if (!Array.isArray(sources) || sources.length === 0) return
+      var rec = document.createElement('span')
+      rec.classList.add('plator__player__quality--list')
+      var obj = uiMap.volume || uiMap.total
+      uiMap.controls.insertBefore(rec, obj.nextSibling)
+      rec.innerHTML = `
+        <select>
+        ${sources.map(
+          s => `<option value="${s['src']}">${s['title']}</option>`
+        ).join('\n')}
+        </select>
+      `
+      rec.addEventListener('change', (e) => {
+        let url = e.target.value
+        uiMap.player.currentTime = uiMap.media.currentTime
+        uiMap.media.setAttribute('src', url)
+        // uiMap.media.load()
+        if ('play' in uiMap.media) {
+          uiMap.media.play()
         }
       })
-      if (sources && sources.length > 0) {
-        var rec = document.createElement('span')
-        rec.classList.add('plator__player__quality--list')
-        uiMap.controls.insertBefore(rec, uiMap.volume)
-        rec.innerHTML = `
-          <select>
-          ${sources.map(
-            s => `<option value="${s['src']}">${s['title']}</option>`
-          ).join('\n')}
-          </select>
-        `
-        rec.addEventListener('change', (e) => {
-          let url = e.target.value
-          uiMap.player.currentTime = uiMap.media.currentTime
-          uiMap.media.setAttribute('src', url)
-          // uiMap.media.load()
-          if ('play' in uiMap.media) {
-            uiMap.media.play()
-          }
-        })
-      }
     }
   }
   </script>
