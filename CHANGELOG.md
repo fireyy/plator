@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/fireyy/plator/compare/v0.7.3...v0.8.0) (2017-11-23)
+
+
+### Bug Fixes
+
+* insertBefore ([b4c02a4](https://github.com/fireyy/plator/commit/b4c02a4))
+* prevent landscape in Tecent X5 Browser ([1bcde8a](https://github.com/fireyy/plator/commit/1bcde8a))
+* quality switcher ([f3837ef](https://github.com/fireyy/plator/commit/f3837ef))
+
+
+### Features
+
+* add uuid ([c0b8bf0](https://github.com/fireyy/plator/commit/c0b8bf0))
+* video quality selector to plugin ([40fb80b](https://github.com/fireyy/plator/commit/40fb80b))
+
+
+
 <a name="0.7.3"></a>
 ## [0.7.3](https://github.com/fireyy/plator/compare/v0.7.2...v0.7.3) (2017-11-17)
 
