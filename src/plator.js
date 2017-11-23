@@ -8,6 +8,7 @@ const skin = 'plator__player'
 const packed = 'data-packed'
 const instances = []
 let icons = null
+let uniqueId = 0
 
 class Plator {
   constructor (media, options = {}) {
@@ -31,6 +32,7 @@ class Plator {
     this.timer = {}
     this.mediaType = player.mediaType = media.nodeName.toLocaleLowerCase()
     player.classList.add(`${skin}--${this.mediaType}`)
+    this.uuid = `${skin}-${this.mediaType}-${uniqueId++}`
 
     let html = this.buildControls(player)
     player.insertAdjacentHTML('beforeend', html)
