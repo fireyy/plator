@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://jsfiddle.net/fireyy/de9mgz8y/" target="_blank">
-    <img src="Screen.png" width="500px">
+    <img src="screen.jpg" width="368">
     <br>
     Live Demo
   </a>
