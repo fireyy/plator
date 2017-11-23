@@ -9,20 +9,76 @@
   <link rel="stylesheet" href="../dist/plator.css">
   <style>
   .plator__player__quality--list {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 22px;
     margin-right: 5px;
+    position: relative;
   }
-  .plator__player__quality--list select {
-    font-size: 8px;
+  .plator__player__quality--list span {
     padding: 0 2px;
-    line-height: 10px;
+    line-height: 18px;
     border: 1px solid #fff;
     border-radius: 2px;
     color: #fff;
     outline: none;
     -webkit-appearance: none;
     background: transparent;
+  }
+  .plator__player__quality--list ul {
+    visibility: hidden;
+    opacity: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255,255,255,.5);
+    background: #222;
+    border-radius: 2px;
+  }
+  .plator__player__quality--list ul::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    bottom: -6px;
+    background: #222;
+    border: 1px solid rgba(255,255,255,.5);
+    border-top-width: 0px;
+    border-left-width: 0px;
+    transform: rotate(45deg);
+    left: 50%;
+    left: calc(50% - 4px);
+  }
+  .plator__player__quality--list li {
+    padding: 0;
+  }
+  .plator__player__quality--list li label {
+    display: block;
+    white-space: nowrap;
+    padding: 0 10px;
+    min-width: 48px;
+    font-size: 12px;
+    line-height: 26px;
+    color: rgba(255,255,255,.5);
+    border-bottom: 1px solid rgba(255,255,255,.5);
+  }
+  .plator__player__quality--list li:last-child label {
+    border-bottom: none;
+  }
+  .plator__player__quality--list input[type=radio] {
+    -webkit-appearance: none;
+    background: transparent;
+    display: none;
+  }
+  .plator__player__quality--list input[type=radio]:checked + label {
+    color: #fff;
+  }
+  .plator__player__quality--list[data-show] ul {
+    visibility: visible;
+    opacity: 1;
   }
   </style>
 </head>
@@ -41,6 +97,7 @@
   <script>
   function qualitySelectorPlugin (player) {
     let { uiMap } = player
+    let uuid = player.uuid || Math.floor(Math.random() * 10000)
     // get all sources
     let sources = uiMap.media.getAttribute('data-quality-list')
     if (sources) {
@@ -51,25 +108,44 @@
         sources = []
       }
       if (!Array.isArray(sources) || sources.length === 0) return
-      var rec = document.createElement('span')
+      var rec = document.createElement('button')
       rec.classList.add('plator__player__quality--list')
-      var obj = uiMap.volume || uiMap.total
-      uiMap.controls.insertBefore(rec, obj.nextSibling)
+      uiMap.controls.insertBefore(rec, uiMap.total.nextSibling)
+      // rec.innerHTML = `
+      //   <select>
+      //   ${sources.map(
+      //     s => `<option value="${s['src']}">${s['title']}</option>`
+      //   ).join('\n')}
+      //   </select>
+      // `
       rec.innerHTML = `
-        <select>
-        ${sources.map(
-          s => `<option value="${s['src']}">${s['title']}</option>`
-        ).join('\n')}
-        </select>
+        <span>${sources[0]['title']}</span>
+        <ul>
+          ${sources.map(
+            (s, i) => `<li><input id="video_quality_${uuid}_${i}" type="radio" name="video_quality" value="${s['src']}" title="${s['title']}" ${i === 0 ? 'checked' : ''}><label for="video_quality_${uuid}_${i}">${s['title']}</label></li>`
+          ).join('\n')}
+        </ul>
       `
-      rec.addEventListener('change', (e) => {
-        let url = e.target.value
-        uiMap.player.currentTime = uiMap.media.currentTime
-        uiMap.media.setAttribute('src', url)
-        // uiMap.media.load()
-        if ('play' in uiMap.media) {
-          uiMap.media.play()
+      rec.addEventListener('click', (e) => {
+        let show = rec.getAttribute('data-show')
+        if (show) {
+          rec.removeAttribute('data-show')
+        } else {
+          rec.setAttribute('data-show', true)
         }
+      })
+      Array.prototype.slice.call(rec.querySelectorAll('input[type=radio]')).forEach(el => {
+        el.addEventListener('change', (e) => {
+          let url = e.target.value
+          rec.removeAttribute('data-show')
+          rec.querySelector('span').innerHTML = e.target.title
+          uiMap.player.currentTime = uiMap.media.currentTime
+          uiMap.media.setAttribute('src', url)
+          // uiMap.media.load()
+          if ('play' in uiMap.media) {
+            uiMap.media.play()
+          }
+        })
       })
     }
   }
